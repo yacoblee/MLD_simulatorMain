@@ -1,0 +1,106 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|c:\\users\\posgen\\documents\\new project\\testproject\\mldproject\\test\\form2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|solutionrelative:test\\form2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|c:\\users\\posgen\\documents\\new project\\testproject\\mldproject\\test\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|solutionrelative:test\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|solutionrelative:test\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|solutionrelative:test\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\form2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{3BD00847-B913-4885-87D5-30212B774F3E}|test\\test.csproj|solutionrelative:test\\form2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 198,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form2.cs",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form2.cs",
+              "RelativeDocumentMoniker": "test\\Form2.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form2.cs",
+              "RelativeToolTip": "test\\Form2.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-01T09:07:32.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Form2.cs [\uB514\uC790\uC778]",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form2.cs",
+              "RelativeDocumentMoniker": "test\\Form2.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form2.cs [\uB514\uC790\uC778]",
+              "RelativeToolTip": "test\\Form2.cs [\uB514\uC790\uC778]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-01T09:07:20.738Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 202,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "test\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.Designer.cs",
+              "RelativeToolTip": "test\\Form1.Designer.cs",
+              "ViewState": "AgIAAJ8AAAAAAAAAAAAvwLYAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-02T11:16:54.222Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.cs",
+              "RelativeDocumentMoniker": "test\\Form1.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.cs",
+              "RelativeToolTip": "test\\Form1.cs",
+              "ViewState": "AgIAAI8BAAAAAAAAAADwv5cBAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:36:13.549Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1.cs [\uB514\uC790\uC778]",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.cs",
+              "RelativeDocumentMoniker": "test\\Form1.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\testProject\\mldproject\\test\\Form1.cs [\uB514\uC790\uC778]",
+              "RelativeToolTip": "test\\Form1.cs [\uB514\uC790\uC778]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:36:32.819Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
