@@ -1,0 +1,11 @@
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\bin\Debug\sendProject.exe.config
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\bin\Debug\sendProject.exe
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\bin\Debug\sendProject.pdb
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.csproj.AssemblyReference.cache
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.Form1.resources
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.Properties.Resources.resources
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.csproj.GenerateResource.cache
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.csproj.CoreCompileInputs.cache
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.exe
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.pdb
+C:\Users\posgen\Documents\New Project\MLD_simulatorMain\sendProject\sendProject\obj\Debug\sendProject.exe.config

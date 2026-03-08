@@ -28,13 +28,62 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.portList = new System.Windows.Forms.ComboBox();
+            this.conBtn = new System.Windows.Forms.Button();
+            this.txtBox = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // portList
+            // 
+            this.portList.FormattingEnabled = true;
+            this.portList.Location = new System.Drawing.Point(402, 89);
+            this.portList.Name = "portList";
+            this.portList.Size = new System.Drawing.Size(121, 23);
+            this.portList.TabIndex = 0;
+            this.portList.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // conBtn
+            // 
+            this.conBtn.Location = new System.Drawing.Point(402, 144);
+            this.conBtn.Name = "conBtn";
+            this.conBtn.Size = new System.Drawing.Size(121, 50);
+            this.conBtn.TabIndex = 1;
+            this.conBtn.Text = "Connect";
+            this.conBtn.UseVisualStyleBackColor = true;
+            this.conBtn.Click += new System.EventHandler(this.conBtn_Click);
+            // 
+            // txtBox
+            // 
+            this.txtBox.Location = new System.Drawing.Point(12, 89);
+            this.txtBox.Multiline = true;
+            this.txtBox.Name = "txtBox";
+            this.txtBox.ReadOnly = true;
+            this.txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtBox.Size = new System.Drawing.Size(384, 363);
+            this.txtBox.TabIndex = 2;
+            this.txtBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(567, 515);
+            this.Controls.Add(this.txtBox);
+            this.Controls.Add(this.conBtn);
+            this.Controls.Add(this.portList);
+            this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.ComboBox portList;
+        private System.Windows.Forms.Button conBtn;
+        private System.Windows.Forms.TextBox txtBox;
     }
 }
 

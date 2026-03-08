@@ -33,6 +33,10 @@ namespace test
 
         private List<ReceivedData> receiveData = new List<ReceivedData>(); // DRS 결과값 저장할 변수
 
+        private List<ReceivedData> timerData = new List<ReceivedData>(); // Timer 로 받아오는 데이터
+
+        private object receiveLock = new object(); 
+
         private Form2 _frm2;
         private SerialPort _serial;
         private System.Timers.Timer _timer;
@@ -41,8 +45,12 @@ namespace test
         {
             InitializeComponent();
 
-            
             _serial = new SerialPort();
+            InitChart();
+
+            _timer = new System.Timers.Timer();
+            _timer.Interval = 5000;
+            _timer.Elapsed += _timer_Elapsed;
 
             //_serial.PortName = "COM4"; // 메인pc 역활
             //_serial.BaudRate = 9600;
@@ -53,18 +61,14 @@ namespace test
             //_serial.DataReceived += _serial_DataReceived;
             //_serial.Open();
 
-            _timer = new System.Timers.Timer();
-            _timer.Interval = 5000;
-            ////_timer.Tick += _timer_Tick;
-            _timer.Elapsed += _timer_Elapsed;
+            //_timer.Tick += _timer_Tick;
 
 
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            InitChart();
-
+           
         }
 
 
@@ -230,14 +234,14 @@ namespace test
 
             try
             {
-            List<DrsRequest> requests = new List<DrsRequest>{
-                new DrsRequest(1, 32), new DrsRequest(33, 32), new DrsRequest(65, 32),
-                new DrsRequest(97, 3), new DrsRequest(101, 32), new DrsRequest(133, 32),
-                new DrsRequest(165, 32), new DrsRequest(201, 32), new DrsRequest(233, 32),
-                new DrsRequest(265, 32), new DrsRequest(301, 32), new DrsRequest(333, 32),
-                new DrsRequest(365, 32), new DrsRequest(401, 32), new DrsRequest(433, 32),
-                new DrsRequest(465, 32)
-            };
+                List<DrsRequest> requests = new List<DrsRequest>{
+                    new DrsRequest(1, 32), new DrsRequest(33, 32), new DrsRequest(65, 32),
+                    new DrsRequest(97, 3), new DrsRequest(101, 32), new DrsRequest(133, 32),
+                    new DrsRequest(165, 32), new DrsRequest(201, 32), new DrsRequest(233, 32),
+                    new DrsRequest(265, 32), new DrsRequest(301, 32), new DrsRequest(333, 32),
+                    new DrsRequest(365, 32), new DrsRequest(401, 32), new DrsRequest(433, 32),
+                    new DrsRequest(465, 32)
+                };
 
                 foreach (DrsRequest req in requests)
                 {
@@ -253,57 +257,19 @@ namespace test
                 return null;
             }
         }
-        private async void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            List<ReceivedData> result = await ExecuteDrsTimer();
 
-            if (result != null)
-            {
-                UpdateChart(result);
-            }
-        }
-        private void UpdateChart(List<ReceivedData> dataList)
-        {
-            // 마샬링 처리: UI 스레드인지 확인
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action(() => UpdateChart(dataList)));
-                return;
-            }
-
-            if (dataList == null || dataList.Count < 4) return;
-
-            DateTime now = DateTime.Now;
-
-            for (int i = 0; i < 4; i++)
-            {
-                string seriesName = $"Series{i + 1}";
-
-
-                chart1.Series[seriesName].Points.AddXY(now, dataList[i].data);
-
-                if (chart1.Series[seriesName].Points.Count > 50)
-                {
-                    chart1.Series[seriesName].Points.RemoveAt(0);
-                }
-
-                var area = chart1.ChartAreas[$"ChartArea{i + 1}"];
-                area.AxisX.Minimum = chart1.Series[seriesName].Points[0].XValue;
-                area.AxisX.Maximum = now.ToOADate();
-            }
-        }
 
         public async Task<List<ReceivedData>> ExecuteDrsTimer()
         {
             if (!_serial.IsOpen) return null;
-
-            //receiveData.Clear();
+        
+            receiveData.Clear();
 
             try
             {
                 List<DrsRequest> requests = new List<DrsRequest>{
                 new DrsRequest(1, 32)
-            };
+                };
 
                 foreach (DrsRequest req in requests)
                 {
@@ -339,7 +305,7 @@ namespace test
 
                 byte[] cmd = list.ToArray();
 
-                TxtLog.Text += $"\r\n[송신] {body} 요청\r\n";
+                //TxtLog.Text += $"\r\n[송신] {body} 요청\r\n";
                 _serial.Write(cmd, 0, cmd.Length);
 
                 await Task.Delay(300);
@@ -351,7 +317,7 @@ namespace test
                     _serial.Read(ret, 0, ret.Length);
 
                     string text = Encoding.ASCII.GetString(ret);
-                    TxtLog.Text += $"[수신] {text}\r\n";
+                    //TxtLog.Text += $"[수신] {text}\r\n";
 
                     inputToken(startAddr, text);
                     return true;
@@ -368,11 +334,51 @@ namespace test
             }
         }
 
+        private async void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            List<ReceivedData> result = await ExecuteDrsTimer();
+
+            if (result != null)
+            {
+                UpdateChart(result);
+            }
+        }
+
+        private void UpdateChart(List<ReceivedData> dataList)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateChart(dataList)));
+                return;
+            }
+              
+            if (dataList == null || dataList.Count < 4) return;
+
+            DateTime now = DateTime.Now;       
+            for (int i = 0; i < 4; i++)
+            {
+                string seriesName = $"PV{i + 1}";
+
+
+                chart1.Series[seriesName].Points.AddXY(now, dataList[i].data);
+
+                if (chart1.Series[seriesName].Points.Count > 50)
+                {
+                    chart1.Series[seriesName].Points.RemoveAt(0);
+                }
+
+                var area = chart1.ChartAreas[$"ChartArea{i + 1}"];
+                area.AxisX.Minimum = chart1.Series[seriesName].Points[0].XValue;
+                area.AxisX.Maximum = now.ToOADate();
+            }
+
+     
+        }
         public void inputToken(int startAddr, string text)
         {
             string cleanText = text.Replace("\r", "").Replace("\n", "");
             string[] tokens = cleanText.Split(',');
-            for (int i = 2; i <= tokens.Length; i++)
+            for (int i = 2; i < tokens.Length; i++)
             {
                 string hexString = tokens[i].Trim();
                 int decimalValue = Convert.ToInt16(hexString, 16);
@@ -426,7 +432,7 @@ namespace test
                 area.AxisY.MajorGrid.LineColor = Color.LightGray;
                 area.AxisX.MajorGrid.LineColor = Color.LightGray;
 
-                Series series = new Series($"Series{i}");
+                Series series = new Series($"PV{i}");
                 series.ChartArea = $"ChartArea{i}";
                 series.ChartType = SeriesChartType.Line;   
                 series.XValueType = ChartValueType.DateTime; 
@@ -444,11 +450,13 @@ namespace test
         private async void btTimer_Click(object sender, EventArgs e)
         {
 
-
             if (!_timer.Enabled)
             {
                 btTimer.Text = "Stop";
-                await ExecuteDrsTimer();
+                List<ReceivedData> initialData = await ExecuteDrsTimer();
+                UpdateChart(initialData);
+                
+
                 _timer.Start();
             }
             else
