@@ -1,0 +1,18 @@
+# 빌드 결과물 폴더
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Visual Studio 및 캐시 디렉토리
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.cache
+
+# 컴파일된 실행 파일 및 디버그 심볼
+*.exe
+*.dll
+*.pdb
+*.app
