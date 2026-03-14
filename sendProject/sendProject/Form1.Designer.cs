@@ -41,6 +41,7 @@
             this.portList.Size = new System.Drawing.Size(121, 23);
             this.portList.TabIndex = 0;
             this.portList.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.portList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.portList_KeyDown);
             // 
             // conBtn
             // 

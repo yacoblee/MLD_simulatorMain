@@ -20,9 +20,6 @@ namespace test
     public partial class Form1 : Form
     {
 
-        
-
-
         private const byte STX = 0x02;
         private const byte CR = 0x0D;
         private const byte LF = 0x0A;
@@ -40,6 +37,26 @@ namespace test
         private Form2 _frm2;
         private SerialPort _serial;
         private System.Timers.Timer _timer;
+        
+        
+        public int rgx ;
+
+
+        List<DrsRequest> request1 = new List<DrsRequest>{
+                    new DrsRequest(1, 32), new DrsRequest(33, 32), new DrsRequest(65, 32),
+                    new DrsRequest(97, 3), new DrsRequest(101, 32), new DrsRequest(133, 32),
+                    new DrsRequest(165, 32), new DrsRequest(201, 32), new DrsRequest(233, 32),
+                    new DrsRequest(265, 32), new DrsRequest(301, 32), new DrsRequest(333, 32),
+                    new DrsRequest(365, 32), new DrsRequest(401, 32), new DrsRequest(433, 32),
+                    new DrsRequest(465, 32)
+                };
+
+        List<DrsRequest> request2 = new List<DrsRequest> { new DrsRequest(1, 32) };
+
+
+
+
+
 
         public Form1()
         {
@@ -58,11 +75,10 @@ namespace test
             //_serial.DataBits = 8;
             //_serial.ReadTimeout = 1000;
             //_serial.WriteTimeout = 1000;
-            //_serial.DataReceived += _serial_DataReceived;
+            _serial.DataReceived += _serial_DataReceived;
             //_serial.Open();
 
             //_timer.Tick += _timer_Tick;
-
 
         }
 
@@ -91,30 +107,39 @@ namespace test
             //string data = _serial.ReadExisting();
             //if (data == null) { return; }
             //TxtLog.Text += data;
-   /*         int length = _serial.BytesToRead;
+            /*         int length = _serial.BytesToRead;
 
-            byte[] byt = new byte[length];
-            _serial.Read(byt, 0, byt.Length);
+                     byte[] byt = new byte[length];
+                     _serial.Read(byt, 0, byt.Length);
 
-            byte[] data = new byte[byt.Length - 3];
-            Array.Copy(byt, 1, data, 0, data.Length);
+                     byte[] data = new byte[byt.Length - 3];
+                     Array.Copy(byt, 1, data, 0, data.Length);
 
-            String msg = Encoding.UTF8.GetString(data);
-*/
+                     String msg = Encoding.UTF8.GetString(data);
+         */
             
-        }
-
-        public class Param
-        {
-            public string Name { get; set; } = "";
-            public double Value { get; set; } = 0.0d;
-            public Param(string name, double value)
+            if (IsDisposed) // 갱신할 대상의 존재 유무 파악 용도
             {
-                Name = name;
-                Value = value;
+                return;
             }
 
+            int len = _serial.BytesToRead;
+            if (len > 0)
+            {
+                byte[] ret = new byte[len];
+                _serial.Read(ret, 0, ret.Length);
+
+                string text = Encoding.ASCII.GetString(ret);
+                //TxtLog.Text += $"[수신] {text}\r\n";
+                Thread.Sleep(1000);
+                inputToken(rgx, text);
+
+
+            }
+          
         }
+
+
 
 
 
@@ -214,41 +239,24 @@ namespace test
             }
 
         }
-        public struct DrsRequest
-        {
-            public int Address;
-            public int Count;
 
-            public DrsRequest(int addr, int cnt)
-            {
-                this.Address = addr;
-                this.Count = cnt;
-            }
-        }
+
 
         public async Task<List<ReceivedData>> ExecuteDrsCommunication()
         {
             if (!_serial.IsOpen) return null;
 
-            receiveData.Clear(); // 결과 리스트 초기화
+            receiveData.Clear();
 
             try
             {
-                List<DrsRequest> requests = new List<DrsRequest>{
-                    new DrsRequest(1, 32), new DrsRequest(33, 32), new DrsRequest(65, 32),
-                    new DrsRequest(97, 3), new DrsRequest(101, 32), new DrsRequest(133, 32),
-                    new DrsRequest(165, 32), new DrsRequest(201, 32), new DrsRequest(233, 32),
-                    new DrsRequest(265, 32), new DrsRequest(301, 32), new DrsRequest(333, 32),
-                    new DrsRequest(365, 32), new DrsRequest(401, 32), new DrsRequest(433, 32),
-                    new DrsRequest(465, 32)
-                };
 
-                foreach (DrsRequest req in requests)
+                foreach (DrsRequest req in request1)
                 {
-                    await SendAndReceiveDRS(req.Address, req.Count);
+                    SendAndReceiveDRS(req.Address, req.Count);
+                    await Task.Delay(400);
                 }
 
-                // 통신이 완료된 전체 리스트를 반환
                 return receiveData;
             }
             catch (Exception ex)
@@ -259,7 +267,7 @@ namespace test
         }
 
 
-        public async Task<List<ReceivedData>> ExecuteDrsTimer()
+        public List<ReceivedData> ExecuteDrsTimer()
         {
             if (!_serial.IsOpen) return null;
         
@@ -267,13 +275,27 @@ namespace test
 
             try
             {
-                List<DrsRequest> requests = new List<DrsRequest>{
-                new DrsRequest(1, 32)
-                };
-
-                foreach (DrsRequest req in requests)
+                
+                foreach (DrsRequest req in request2)
                 {
-                    await SendAndReceiveDRS(req.Address, req.Count);
+                    rgx = req.Address;
+                    int firstCount = receiveData.Count;
+                    int fullCount = firstCount + req.Count;
+
+
+
+                    SendAndReceiveDRS(req.Address, req.Count);
+
+                    int first = 0;
+                    while (first < fullCount)
+                    {
+                        first++;
+                        
+                        if (first > 50)
+                        {
+                            break;
+                        }
+                    }
                 }
 
                 return receiveData;
@@ -286,7 +308,7 @@ namespace test
         }
 
 
-        private async Task<bool> SendAndReceiveDRS(int startAddr, int count)
+        private void SendAndReceiveDRS(int startAddr, int count)
         {
             try
             {
@@ -305,38 +327,37 @@ namespace test
 
                 byte[] cmd = list.ToArray();
 
-                //TxtLog.Text += $"\r\n[송신] {body} 요청\r\n";
                 _serial.Write(cmd, 0, cmd.Length);
 
-                await Task.Delay(300);
+                Task.Delay(300);
+                rgx = startAddr;
+                //int len = _serial.BytesToRead;
+                //if (len > 0)
+                //{
+                //    byte[] ret = new byte[len];
+                //    _serial.Read(ret, 0, ret.Length);
 
-                int len = _serial.BytesToRead;
-                if (len > 0)
-                {
-                    byte[] ret = new byte[len];
-                    _serial.Read(ret, 0, ret.Length);
+                //    string text = Encoding.ASCII.GetString(ret);
+                //    //TxtLog.Text += $"[수신] {text}\r\n";
 
-                    string text = Encoding.ASCII.GetString(ret);
-                    //TxtLog.Text += $"[수신] {text}\r\n";
-
-                    inputToken(startAddr, text);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                //    inputToken(startAddr, text);
+                //    return true;
+                //}
+                //else
+                //{
+                //    return false;
+                //}
 
             }
             catch (Exception ex)
             {
-                return false;
+                MessageBox.Show(ex.Message);
             }
         }
 
-        private async void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            List<ReceivedData> result = await ExecuteDrsTimer();
+            List<ReceivedData> result =  ExecuteDrsTimer();
 
             if (result != null)
             {
@@ -346,33 +367,44 @@ namespace test
 
         private void UpdateChart(List<ReceivedData> dataList)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateChart(dataList)));
-                return;
-            }
-              
-            if (dataList == null || dataList.Count < 4) return;
-
-            DateTime now = DateTime.Now;       
-            for (int i = 0; i < 4; i++)
-            {
-                string seriesName = $"PV{i + 1}";
-
-
-                chart1.Series[seriesName].Points.AddXY(now, dataList[i].data);
-
-                if (chart1.Series[seriesName].Points.Count > 50)
+                if (IsDisposed)
                 {
-                    chart1.Series[seriesName].Points.RemoveAt(0);
+                    return; 
                 }
 
-                var area = chart1.ChartAreas[$"ChartArea{i + 1}"];
-                area.AxisX.Minimum = chart1.Series[seriesName].Points[0].XValue;
-                area.AxisX.Maximum = now.ToOADate();
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateChart(dataList)));
+                    return;
+                }
+              
+                if (dataList == null || dataList.Count < 4) return;
+
+                DateTime now = DateTime.Now;       
+                for (int i = 0; i < 4; i++)
+                {
+                    string seriesName = $"PV{i + 1}";
+
+
+                    chart1.Series[seriesName].Points.AddXY(now, dataList[i].data);
+
+                    if (chart1.Series[seriesName].Points.Count > 50)
+                    {
+                        chart1.Series[seriesName].Points.RemoveAt(0);
+                    }
+
+                    var area = chart1.ChartAreas[$"ChartArea{i + 1}"];
+                    area.AxisX.Minimum = chart1.Series[seriesName].Points[0].XValue;
+                    area.AxisX.Maximum = now.ToOADate();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
             }
 
-     
         }
         public void inputToken(int startAddr, string text)
         {
@@ -385,6 +417,7 @@ namespace test
 
                 receiveData.Add(new ReceivedData(startAddr + (i - 2), decimalValue));
             }
+            rgx = 0;
         }
 
         public class DrsDataEventArgs : EventArgs
@@ -447,13 +480,13 @@ namespace test
  
         }
 
-        private async void btTimer_Click(object sender, EventArgs e)
+        private void btTimer_Click(object sender, EventArgs e)
         {
 
             if (!_timer.Enabled)
             {
                 btTimer.Text = "Stop";
-                List<ReceivedData> initialData = await ExecuteDrsTimer();
+                List<ReceivedData> initialData = ExecuteDrsTimer();
                 UpdateChart(initialData);
                 
 
@@ -465,8 +498,32 @@ namespace test
                 _timer.Stop();
             }
         }
-    }
 
+        private void cmbPortName_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.SuppressKeyPress = true;
+            
+        }
+    }
+    public class Regist
+    {
+        public string rgx { get; set; } = "";
+        
+        public Regist(string rgx) {
+        this.rgx = rgx;   
+        }
+    }
+    public class Param
+    {
+        public string Name { get; set; } = "";
+        public double Value { get; set; } = 0.0d;
+        public Param(string name, double value)
+        {
+            Name = name;
+            Value = value;
+        }
+
+    }
     public class ReceivedData
     {
         public int idx { get; set; }
@@ -475,6 +532,18 @@ namespace test
         {
             this.idx = idx;
             this.data = data;
+        }
+    }
+
+    public struct DrsRequest
+    {
+        public int Address;
+        public int Count;
+
+        public DrsRequest(int addr, int cnt)
+        {
+            this.Address = addr;
+            this.Count = cnt;
         }
     }
 }

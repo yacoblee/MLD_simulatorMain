@@ -155,6 +155,11 @@ namespace sendProject
                 txtBox.Clear();
             }
         }
+
+        private void portList_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.SuppressKeyPress = true;
+        }
     }
 }
 
