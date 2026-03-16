@@ -46,10 +46,10 @@
             // 
             // buttonWho
             // 
-            this.buttonWho.Location = new System.Drawing.Point(804, 77);
+            this.buttonWho.Location = new System.Drawing.Point(919, 96);
             this.buttonWho.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonWho.Name = "buttonWho";
-            this.buttonWho.Size = new System.Drawing.Size(100, 33);
+            this.buttonWho.Size = new System.Drawing.Size(114, 41);
             this.buttonWho.TabIndex = 0;
             this.buttonWho.Text = "who";
             this.buttonWho.UseVisualStyleBackColor = true;
@@ -58,10 +58,10 @@
             // cmbPortName
             // 
             this.cmbPortName.FormattingEnabled = true;
-            this.cmbPortName.Location = new System.Drawing.Point(804, 49);
+            this.cmbPortName.Location = new System.Drawing.Point(919, 61);
             this.cmbPortName.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbPortName.Name = "cmbPortName";
-            this.cmbPortName.Size = new System.Drawing.Size(100, 20);
+            this.cmbPortName.Size = new System.Drawing.Size(114, 23);
             this.cmbPortName.TabIndex = 2;
             this.cmbPortName.Text = "COM1";
             this.cmbPortName.DropDown += new System.EventHandler(this.cmbPortName_DropDown);
@@ -69,10 +69,10 @@
             // 
             // buttonConnect
             // 
-            this.buttonConnect.Location = new System.Drawing.Point(930, 41);
+            this.buttonConnect.Location = new System.Drawing.Point(1063, 51);
             this.buttonConnect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonConnect.Name = "buttonConnect";
-            this.buttonConnect.Size = new System.Drawing.Size(101, 33);
+            this.buttonConnect.Size = new System.Drawing.Size(115, 41);
             this.buttonConnect.TabIndex = 3;
             this.buttonConnect.Text = "Connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
@@ -80,21 +80,21 @@
             // 
             // TxtLog
             // 
-            this.TxtLog.Location = new System.Drawing.Point(22, 9);
+            this.TxtLog.Location = new System.Drawing.Point(25, 11);
             this.TxtLog.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TxtLog.Multiline = true;
             this.TxtLog.Name = "TxtLog";
             this.TxtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtLog.Size = new System.Drawing.Size(778, 110);
+            this.TxtLog.Size = new System.Drawing.Size(889, 136);
             this.TxtLog.TabIndex = 4;
             this.TxtLog.TextChanged += new System.EventHandler(this.TxtLog_TextChanged);
             // 
             // winPop
             // 
-            this.winPop.Location = new System.Drawing.Point(931, 77);
+            this.winPop.Location = new System.Drawing.Point(1064, 96);
             this.winPop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.winPop.Name = "winPop";
-            this.winPop.Size = new System.Drawing.Size(100, 56);
+            this.winPop.Size = new System.Drawing.Size(114, 70);
             this.winPop.TabIndex = 102;
             this.winPop.Text = "Setting";
             this.winPop.UseVisualStyleBackColor = true;
@@ -162,24 +162,24 @@
             this.chart1.ChartAreas.Add(chartArea4);
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(33, 186);
+            this.chart1.Location = new System.Drawing.Point(38, 232);
             this.chart1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(987, 493);
+            this.chart1.Size = new System.Drawing.Size(1087, 503);
             this.chart1.TabIndex = 103;
             this.chart1.Text = "chart1";
             this.chart1.Click += new System.EventHandler(this.chart1_Click);
             // 
             // btTimer
             // 
-            this.btTimer.Location = new System.Drawing.Point(33, 136);
+            this.btTimer.Location = new System.Drawing.Point(38, 170);
             this.btTimer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btTimer.Name = "btTimer";
-            this.btTimer.Size = new System.Drawing.Size(122, 33);
+            this.btTimer.Size = new System.Drawing.Size(139, 41);
             this.btTimer.TabIndex = 104;
             this.btTimer.Text = "그래프 통신 시작";
             this.btTimer.UseVisualStyleBackColor = true;
@@ -187,9 +187,9 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1068, 710);
+            this.ClientSize = new System.Drawing.Size(1193, 807);
             this.Controls.Add(this.btTimer);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.winPop);
