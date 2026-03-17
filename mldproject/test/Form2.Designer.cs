@@ -47,6 +47,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.drsBtn = new System.Windows.Forms.Button();
+            this.usable = new System.Windows.Forms.Label();
+            this.usable1 = new System.Windows.Forms.Label();
+            this.unusable = new System.Windows.Forms.Label();
+            this.unusable1 = new System.Windows.Forms.Label();
+            this.saveBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -70,14 +75,14 @@
             this.fifthval,
             this.five,
             this.fiveval});
-            this.dataGridView2.Location = new System.Drawing.Point(12, 215);
+            this.dataGridView2.Location = new System.Drawing.Point(10, 172);
             this.dataGridView2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.RowHeadersVisible = false;
             this.dataGridView2.RowHeadersWidth = 51;
             this.dataGridView2.RowTemplate.Height = 27;
             this.dataGridView2.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView2.Size = new System.Drawing.Size(1253, 513);
+            this.dataGridView2.Size = new System.Drawing.Size(1096, 449);
             this.dataGridView2.TabIndex = 8;
             // 
             // Num
@@ -162,9 +167,9 @@
             // 
             this.label2.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label2.ForeColor = System.Drawing.SystemColors.Control;
-            this.label2.Location = new System.Drawing.Point(146, 191);
+            this.label2.Location = new System.Drawing.Point(128, 153);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(226, 22);
+            this.label2.Size = new System.Drawing.Size(198, 18);
             this.label2.TabIndex = 102;
             this.label2.Text = "0";
             // 
@@ -172,9 +177,9 @@
             // 
             this.label7.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label7.ForeColor = System.Drawing.SystemColors.Control;
-            this.label7.Location = new System.Drawing.Point(378, 191);
+            this.label7.Location = new System.Drawing.Point(331, 153);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(218, 22);
+            this.label7.Size = new System.Drawing.Size(191, 18);
             this.label7.TabIndex = 103;
             this.label7.Text = "+100";
             // 
@@ -182,9 +187,9 @@
             // 
             this.label5.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label5.ForeColor = System.Drawing.SystemColors.Control;
-            this.label5.Location = new System.Drawing.Point(602, 191);
+            this.label5.Location = new System.Drawing.Point(527, 153);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(210, 22);
+            this.label5.Size = new System.Drawing.Size(184, 18);
             this.label5.TabIndex = 104;
             this.label5.Text = "+200";
             // 
@@ -192,9 +197,9 @@
             // 
             this.label4.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label4.ForeColor = System.Drawing.SystemColors.Control;
-            this.label4.Location = new System.Drawing.Point(818, 191);
+            this.label4.Location = new System.Drawing.Point(716, 153);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(210, 22);
+            this.label4.Size = new System.Drawing.Size(184, 18);
             this.label4.TabIndex = 105;
             this.label4.Text = "+300";
             // 
@@ -202,9 +207,9 @@
             // 
             this.label6.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label6.ForeColor = System.Drawing.SystemColors.Control;
-            this.label6.Location = new System.Drawing.Point(1034, 191);
+            this.label6.Location = new System.Drawing.Point(905, 153);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(231, 22);
+            this.label6.Size = new System.Drawing.Size(202, 18);
             this.label6.TabIndex = 106;
             this.label6.Text = "+400";
             // 
@@ -212,29 +217,90 @@
             // 
             this.label1.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.label1.ForeColor = System.Drawing.SystemColors.Control;
-            this.label1.Location = new System.Drawing.Point(12, 191);
+            this.label1.Location = new System.Drawing.Point(10, 153);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(128, 22);
+            this.label1.Size = new System.Drawing.Size(112, 18);
             this.label1.TabIndex = 107;
             this.label1.Text = "No";
             // 
             // drsBtn
             // 
             this.drsBtn.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.drsBtn.Location = new System.Drawing.Point(1037, 100);
+            this.drsBtn.Location = new System.Drawing.Point(907, 80);
             this.drsBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.drsBtn.Name = "drsBtn";
-            this.drsBtn.Size = new System.Drawing.Size(152, 64);
+            this.drsBtn.Size = new System.Drawing.Size(133, 51);
             this.drsBtn.TabIndex = 108;
             this.drsBtn.Text = "DRS Button";
             this.drsBtn.UseVisualStyleBackColor = true;
             this.drsBtn.Click += new System.EventHandler(this.drsBtn_Click);
             // 
+            // usable
+            // 
+            this.usable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.usable.AutoSize = true;
+            this.usable.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.usable.Location = new System.Drawing.Point(139, 644);
+            this.usable.Name = "usable";
+            this.usable.Size = new System.Drawing.Size(72, 15);
+            this.usable.TabIndex = 109;
+            this.usable.Text = "읽기 전용";
+            // 
+            // usable1
+            // 
+            this.usable1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.usable1.BackColor = System.Drawing.Color.LightGray;
+            this.usable1.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.usable1.ForeColor = System.Drawing.Color.Black;
+            this.usable1.Location = new System.Drawing.Point(50, 644);
+            this.usable1.Name = "usable1";
+            this.usable1.Size = new System.Drawing.Size(72, 15);
+            this.usable1.TabIndex = 110;
+            // 
+            // unusable
+            // 
+            this.unusable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.unusable.AutoSize = true;
+            this.unusable.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.unusable.Location = new System.Drawing.Point(327, 644);
+            this.unusable.Name = "unusable";
+            this.unusable.Size = new System.Drawing.Size(72, 15);
+            this.unusable.TabIndex = 109;
+            this.unusable.Text = "쓰기 가능";
+            // 
+            // unusable1
+            // 
+            this.unusable1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.unusable1.BackColor = System.Drawing.Color.LawnGreen;
+            this.unusable1.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.unusable1.Location = new System.Drawing.Point(238, 644);
+            this.unusable1.Name = "unusable1";
+            this.unusable1.Size = new System.Drawing.Size(68, 19);
+            this.unusable1.TabIndex = 110;
+            this.unusable1.Click += new System.EventHandler(this.label9_Click);
+            // 
+            // saveBtn
+            // 
+            this.saveBtn.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.saveBtn.Location = new System.Drawing.Point(771, 80);
+            this.saveBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.saveBtn.Name = "saveBtn";
+            this.saveBtn.Size = new System.Drawing.Size(119, 51);
+            this.saveBtn.TabIndex = 111;
+            this.saveBtn.Text = "저장";
+            this.saveBtn.UseVisualStyleBackColor = true;
+            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+            // 
             // Form2
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1283, 805);
+            this.ClientSize = new System.Drawing.Size(1123, 683);
+            this.Controls.Add(this.saveBtn);
+            this.Controls.Add(this.unusable1);
+            this.Controls.Add(this.usable1);
+            this.Controls.Add(this.unusable);
+            this.Controls.Add(this.usable);
             this.Controls.Add(this.drsBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label7);
@@ -243,11 +309,13 @@
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form2";
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -272,5 +340,10 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button drsBtn;
+        private System.Windows.Forms.Label usable;
+        private System.Windows.Forms.Label usable1;
+        private System.Windows.Forms.Label unusable;
+        private System.Windows.Forms.Label unusable1;
+        private System.Windows.Forms.Button saveBtn;
     }
 }

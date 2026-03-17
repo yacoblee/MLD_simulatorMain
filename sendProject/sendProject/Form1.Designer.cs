@@ -58,7 +58,6 @@
             this.txtBox.Location = new System.Drawing.Point(12, 89);
             this.txtBox.Multiline = true;
             this.txtBox.Name = "txtBox";
-            this.txtBox.ReadOnly = true;
             this.txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtBox.Size = new System.Drawing.Size(384, 363);
             this.txtBox.TabIndex = 2;

@@ -13,15 +13,19 @@ namespace sendProject
 {
     public partial class Form1 : Form
     {
-
+       
+        private Man _man;
         private SerialPort _serial;
 
         private byte[] _parameter;
         private byte _addr;
 
-        public Form1()
+        public Form1(Man man)
         {
             InitializeComponent();
+            _man = man; // cfg 생성자 주입
+
+
             _addr = 0x01;
             _parameter = new byte[500];
             for (int i = 0; i < _parameter.Length; i++)
@@ -66,11 +70,69 @@ namespace sendProject
                 Invoke(new Action(() => { txtBox.Text += $"{Encoding.UTF8.GetString(data)}\n"; }));
             }
 
-            if ( msg.Contains("DRS") ) {
-                ProcessDRS(msg);
+
+            switch (msg)
+            {
+                case string s when s.Contains("DRS"):
+                    ProcessDRS(msg);
+                    break;
+
+                case string s when s.Contains("DWS"):
+                    ProcessDWS(msg);
+                    break;
+
+                default:
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() => { txtBox.Text += "Error"; }));
+                    }
+                    break;
+            }
+            
+
+
+
+        }
+
+        private void ProcessDWS(String msg)
+        {
+
+            try
+            {
+                string[] splitData = msg.Split(',');
+
+                if(splitData.Length  < 4) { return ;  }
+                string addrHex = splitData[2].Trim();
+                string valHex = splitData[3].Trim();
+
+                int cellIdx = Convert.ToInt32(addrHex, 16);
+                int idxValue = Convert.ToInt32(valHex, 16);
+
+                if (!_man.isValid(cellIdx, idxValue))
+                {
+                    Console.WriteLine($"inValid Range Value");
+                    return ;
+                }
+
+                _man.Save();
+
+
+
+
+
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => { txtBox.Text += $"DWS Send : \n"; }));
+                }
+
+
+            }
+            catch (Exception ex) { 
+                Console.WriteLine(ex.ToString()); return ; 
             }
 
-          
+
+
         }
 
         private void ProcessDRS(String msg)

@@ -22,7 +22,8 @@ namespace test
         public Form2()
         {
             InitializeComponent();
-           
+            usable1.BackColor = Color.Green;
+            usable1.BackColor = Color.White;
 
         }
 
@@ -494,12 +495,29 @@ namespace test
         private void Form2_Load(object sender, EventArgs e)
         {
             registGridData();
+            dataGridView2.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridView2.ReadOnly = true;
+            dataGridView2.AllowUserToAddRows = false;
             dataGridView2.Rows.Clear();
+            dataGridView2.Columns[0].Width = 30;
+            for (int i = 1; i < 11; i++)
+            {
+                if (i % 2 == 0)
+                {// 값 색상
+                    dataGridView2.Columns[i].DefaultCellStyle.BackColor = Color.LightGray;
+                }
+                else
+                {// 이름 색상
+                    dataGridView2.Columns[i].DefaultCellStyle.BackColor = Color.Gray;
+                }
+            }
+
 
             for (int i = 0; i < 100; i++)
             {
                 dataGridView2.Rows.Add();
                 dataGridView2.Rows[i].Cells[0].Value = i.ToString("00");
+                
 
                 if (dic.Keys.Contains(i))
                 {
@@ -565,5 +583,15 @@ namespace test
             DrsRequestTriggered?.Invoke(this, EventArgs.Empty);
         }
 
+        private void label9_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void saveBtn_Click(object sender, EventArgs e)
+        {
+            //saveBtn
+
+        }
     }
 }

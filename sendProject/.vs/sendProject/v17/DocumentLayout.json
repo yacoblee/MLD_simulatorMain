@@ -3,11 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|c:\\users\\posgen\\documents\\new project\\mld_simulatormain\\sendproject\\sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|solutionrelative:sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|c:\\users\\posgen\\documents\\new project\\mld_simulatormain\\sendproject\\sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|c:\\users\\posgen\\documents\\new project\\mld_simulatormain\\sendproject\\sendproject\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|solutionrelative:sendproject\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{2131D772-422A-4721-B534-2A242C83BD33}|sendProject\\sendProject.csproj|solutionrelative:sendproject\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
@@ -18,8 +22,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Config.cs",
+              "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendProject\\Config.cs",
+              "RelativeDocumentMoniker": "sendProject\\Config.cs",
+              "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendProject\\Config.cs",
+              "RelativeToolTip": "sendProject\\Config.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-17T05:38:27.711Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -28,14 +45,14 @@
               "RelativeDocumentMoniker": "sendProject\\Form1.cs",
               "ToolTip": "C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendProject\\Form1.cs",
               "RelativeToolTip": "sendProject\\Form1.cs",
-              "ViewState": "AgIAAI0AAAAAAAAAAAAzwJcAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAADcAAAAAAAAAAAAswEQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-21T07:54:38.413Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Form1.cs [\uB514\uC790\uC778]",
               "DocumentMoniker": "C:\\Users\\posgen\\Documents\\New Project\\MLD_simulatorMain\\sendProject\\sendProject\\Form1.cs",
               "RelativeDocumentMoniker": "sendProject\\Form1.cs",
