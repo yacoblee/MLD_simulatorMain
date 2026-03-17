@@ -70,15 +70,22 @@ namespace sendProject
                 Invoke(new Action(() => { txtBox.Text += $"{Encoding.UTF8.GetString(data)}\n"; }));
             }
 
+            if (msg.Contains("DRS"))
+            {
+                ProcessDRS(msg);
+            } else if (msg.Contains("DWR"))
+            {
+                ProcessDWR(msg);
+            }
 
-            switch (msg)
+/*            switch (msg)
             {
                 case string s when s.Contains("DRS"):
                     ProcessDRS(msg);
                     break;
 
                 case string s when s.Contains("DWS"):
-                    ProcessDWS(msg);
+                    
                     break;
 
                 default:
@@ -87,14 +94,14 @@ namespace sendProject
                         Invoke(new Action(() => { txtBox.Text += "Error"; }));
                     }
                     break;
-            }
+            }*/
             
 
 
 
         }
 
-        private void ProcessDWS(String msg)
+        private void ProcessDWR(String msg)
         {
 
             try
@@ -102,27 +109,46 @@ namespace sendProject
                 string[] splitData = msg.Split(',');
 
                 if(splitData.Length  < 4) { return ;  }
-                string addrHex = splitData[2].Trim();
-                string valHex = splitData[3].Trim();
+           
 
-                int cellIdx = Convert.ToInt32(addrHex, 16);
-                int idxValue = Convert.ToInt32(valHex, 16);
+                int cellIdx = int.Parse(splitData[2].Trim());
+                int idxValue = Convert.ToInt32(splitData[3], 16);
 
                 if (!_man.isValid(cellIdx, idxValue))
                 {
                     Console.WriteLine($"inValid Range Value");
                     return ;
                 }
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => { txtBox.Text += $"\n파싱된 주소: {cellIdx}, 파싱된 값: {idxValue}\n"; }));
+                }
 
-                _man.Save();
+                _man.idx = cellIdx;
+                _man.value = idxValue;
+
+                _man.SetValue(cellIdx, idxValue);
+
+                string data = $"{_addr:00}DWR,OK";
+
+                byte[] by = new byte[data.Length + 3];
 
 
+                by[0] = 0x02;
+                for (int i = 0; i < data.Length; i++)
+                {
+                    by[1 + i] = (byte)data[i];
+                }
+                by[by.Length - 2] = 0x0D;
+                by[by.Length - 1] = 0x0A;
+                string chk = Encoding.UTF8.GetString(by);
+                _serial.Write(by, 0, by.Length);
 
 
 
                 if (InvokeRequired)
                 {
-                    Invoke(new Action(() => { txtBox.Text += $"DWS Send : \n"; }));
+                    Invoke(new Action(() => { txtBox.Text += $"\n{chk} \n"; }));
                 }
 
 

@@ -16,7 +16,11 @@ namespace sendProject
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            Config cfg = Config.Load();
+            Man man = new Man(cfg);
+
+            Application.Run(new Form1(man));
         }
     }
 }
