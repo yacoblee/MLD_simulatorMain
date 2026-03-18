@@ -17,8 +17,9 @@ namespace sendProject
 
         public Man(Config cfg)
         {
-            InitValidationRules();
             _cfg = cfg;
+            InitValidationRules();
+            InitDefaultValues();
         }
 
 
@@ -70,6 +71,27 @@ namespace sendProject
                     return true;
                 }
          */
+
+        private void InitDefaultValues()
+        {
+            // 딕셔너리에 데이터가 하나도 없다면 (최초 실행 상태라면)
+            if (_cfg.ParamData.Count == 0)
+            {
+                // svGroup의 모든 주소에 기본값 1 (01) 세팅
+                foreach (int idx in svGroup)
+                {
+                    _cfg.ParamData[idx] = 1;
+                }
+
+                foreach (int idx in pvGroup)
+                {
+                    _cfg.ParamData[idx] = 1;
+                }
+
+                _cfg.Save();
+            }
+        }
+
         private void InitValidationRules()
         {
 
