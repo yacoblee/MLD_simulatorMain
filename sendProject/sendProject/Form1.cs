@@ -119,11 +119,7 @@ namespace sendProject
                     Console.WriteLine($"inValid Range Value");
                     return ;
                 }
-                if (InvokeRequired)
-                {
-                    Invoke(new Action(() => { txtBox.Text += $"\n파싱된 주소: {cellIdx}, 파싱된 값: {idxValue}\n"; }));
-                }
-
+ 
                 _man.idx = cellIdx;
                 _man.value = idxValue;
 
@@ -202,6 +198,24 @@ namespace sendProject
 
 
         }
+
+        private int TransPvValue(int cellIdx, int value)
+        {
+
+            if (_man.pvGroup.Contains(cellIdx))
+            {
+                if (value % 2 == 0)
+                {
+                    // 2의 배수라면 10으로 나눈 값을 반환
+                    // (주의: int 자료형이므로 12 / 10 은 1로 소수점이 버려집니다)
+                    return value / 10;
+                }
+            }
+
+
+            return value;
+        }
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
