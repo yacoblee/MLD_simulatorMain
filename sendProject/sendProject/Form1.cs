@@ -70,36 +70,25 @@ namespace sendProject
                 Invoke(new Action(() => { txtBox.Text += $"{Encoding.UTF8.GetString(data)}\n"; }));
             }
 
+
             if (msg.Contains("DRS"))
             {
                 ProcessDRS(msg);
-            } else if (msg.Contains("DWR"))
+            }
+            else if (msg.Contains("DWR"))
             {
                 ProcessDWR(msg);
             }
-
-/*            switch (msg)
+            else if (msg.Contains("SYNC"))
             {
-                case string s when s.Contains("DRS"):
-                    ProcessDRS(msg);
-                    break;
-
-                case string s when s.Contains("DWS"):
-                    
-                    break;
-
-                default:
-                    if (InvokeRequired)
-                    {
-                        Invoke(new Action(() => { txtBox.Text += "Error"; }));
-                    }
-                    break;
-            }*/
-            
+                ProcessSYNC();
+            }
 
 
 
-        }
+
+
+            }
 
         private void ProcessDWR(String msg)
         {
@@ -120,9 +109,6 @@ namespace sendProject
                     return ;
                 }
  
-                _man.idx = cellIdx;
-                _man.value = idxValue;
-
                 _man.SetValue(cellIdx, idxValue);
 
                 string data = $"{_addr:00}DWR,OK";
@@ -164,7 +150,7 @@ namespace sendProject
             if (int.TryParse(splitData[1], out int count ))  // 반환 해야할 데이터 갯수
             {
 
-                if (int.TryParse(splitData[2], out int idx)) { // regist 역할
+                if (int.TryParse(splitData[2], out int idx)) {  
 
                     // return 형식 만들기 
                     string data = $"{_addr:00}DRS,OK";
@@ -198,6 +184,53 @@ namespace sendProject
 
 
         }
+
+        private void ProcessSYNC()
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => { txtBox.Text += $"config : {_man.GetAllParams()} !\r\n"; }));
+                }
+                Dictionary<int, int> allParams = _man.GetAllParams();
+
+                if (allParams == null || allParams.Count == 0) return;
+
+                StringBuilder sb = new StringBuilder(2048);
+                sb.Append($"{_addr:00}SYNC"); // "01SYNC"
+
+                foreach (var item in allParams)
+                {
+                    int address = item.Key;
+                    int val = item.Value;
+                    sb.Append($",{address:D4}:{val:X4}");
+                }
+
+                string data = sb.ToString();
+
+                byte[] dataBy = Encoding.ASCII.GetBytes(data);
+                byte[] sendBy = new byte[dataBy.Length + 3];
+
+                sendBy[0] = 0x02;
+                Array.Copy(dataBy, 0, sendBy, 1, dataBy.Length);
+                sendBy[sendBy.Length - 2] = 0x0D;
+                sendBy[sendBy.Length - 1] = 0x0A;
+
+                _serial.Write(sendBy, 0, sendBy.Length);
+
+                if (InvokeRequired)
+                {
+                    string logMsg = data.Length > 1000 ? data.Substring(0, 1000) + "" : data;
+                    Invoke(new Action(() => { txtBox.Text += $"설정 파일 전송 : {logMsg}\n"; }));
+                }
+            }
+            catch (Exception ex)
+            {
+                Invoke(new Action(() => { txtBox.Text += $"설정 파일 전송 에러: {ex.Message}\n"; }));
+            }
+        }
+
 
         private int TransPvValue(int cellIdx, int value)
         {
@@ -252,7 +285,7 @@ namespace sendProject
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (txtBox.TextLength > 10000)
+            if (txtBox.TextLength > 1000)
             {
                 txtBox.Clear();
             }
@@ -261,6 +294,18 @@ namespace sendProject
         private void portList_KeyDown(object sender, KeyEventArgs e)
         {
             e.SuppressKeyPress = true;
+        }
+    }
+
+    public class Param
+    {
+        public int Name { get; set; } = 0;
+        public int Value { get; set; } = 0;
+
+        public Param(int name, int value)
+        {
+            Name = name;
+            Value = value;
         }
     }
 }

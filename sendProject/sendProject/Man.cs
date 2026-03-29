@@ -23,61 +23,10 @@ namespace sendProject
         }
 
 
-        public int idx
-        {
-            get
-            {
-                return _cfg.Idx;
-            }
-            set
-            {
-                _cfg.Idx = value;
-            }
-        }
-        public int value
-        {
-            get
-            {
-                return _cfg.value;
-            }
-            set
-            {
-                _cfg.value = value;
-            }
-        }
-
-        /*        public Boolean isValid(int idx, int value)
-                {
-
-                    if (idx == 102 || idx == 202 || idx == 302 || idx == 402 || idx == 6 || idx == 7 || idx == 8 || idx == 9
-                        || idx == 109) //SV1~4 수정 (셀 +100 ~ +400) 
-                    {
-                        if (1 <= value && value <= 100)
-                        {
-                            return true;
-                        }
-                    }
-
-                    if (idx == 101 || idx == 201 || idx == 301 || idx == 401 
-                        || idx == 1 || idx == 2 || idx == 3 || idx == 4 || 
-                        idx == 109 || idx == 209 || idx == 309 || idx == 409 ) //PV1~4 수정 (셀 +100 ~ +400) 
-                    {
-                        if (1 <= value && value < 16)
-                        {
-                            return true;
-                        }
-                    }
-
-                    return true;
-                }
-         */
-
         private void InitDefaultValues()
         {
-            // 딕셔너리에 데이터가 하나도 없다면 (최초 실행 상태라면)
             if (_cfg.ParamData.Count == 0)
             {
-                // svGroup의 모든 주소에 기본값 1 (01) 세팅
                 foreach (int idx in svGroup)
                 {
                     _cfg.ParamData[idx] = 1;
@@ -121,6 +70,10 @@ namespace sendProject
         public void SetValue(int idx, int value)
         {
             _cfg.ParamData[idx] = value;
+        }
+        public Dictionary<int, int> GetAllParams()
+        {
+            return _cfg.ParamData;
         }
 
         public void Save()

@@ -7,16 +7,24 @@ using System.Drawing;
 using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace test
 {
+
+    public static class configData
+    {
+        public static Dictionary<int, Param> dic = new Dictionary<int, Param>();
+    }
+
     public partial class Form1 : Form
     {
 
@@ -25,22 +33,16 @@ namespace test
         private const byte LF = 0x0A;
         private const byte ADDR1 = (byte)'0';
         private const byte ADDR2 = (byte)'1';
-
-        private Dictionary<int, Param> dic; 
-
-        private List<ReceivedData> receiveData = new List<ReceivedData>(); // DRS 결과값 저장할 변수
-
-        private List<ReceivedData> timerData = new List<ReceivedData>(); // Timer 로 받아오는 데이터
-
-        private object receiveLock = new object(); 
-
+        private  string _rxBuffer = ""; 
+        public int rgx ;
+        
+        
         private Form2 _frm2;
         private SerialPort _serial;
         private System.Timers.Timer _timer;
         
         
-        public int rgx ;
-
+        private List<ReceivedData> receiveData = new List<ReceivedData>();
 
         List<DrsRequest> request1 = new List<DrsRequest>{
                     new DrsRequest(1, 32), new DrsRequest(33, 32), new DrsRequest(65, 32),
@@ -51,10 +53,14 @@ namespace test
                     new DrsRequest(465, 32)
                 };
 
-        List<DrsRequest> request2 = new List<DrsRequest> { new DrsRequest(1, 32) };
+        List<DrsRequest> request2 = new List<DrsRequest> { new DrsRequest(1, 32) }; // 실시간 차트전용
 
 
-
+        public void initData ()
+        {
+            receiveData.Clear();
+            configData.dic.Clear();
+        }
 
 
 
@@ -130,8 +136,24 @@ namespace test
                 _serial.Read(ret, 0, ret.Length);
 
                 string text = Encoding.ASCII.GetString(ret);
+                _rxBuffer += text;
+
+                if (text.Contains("SYNC"))
+                {
+                    while (_rxBuffer.Contains("\n")) { 
+                        int index = _rxBuffer.IndexOf("\n");
+                    string msg = _rxBuffer.Substring(0, index); 
+                    _rxBuffer = _rxBuffer.Substring(index + 1); 
+                    msg = msg.Replace("\r", "").Replace("\n", "").Replace("\u0002", "");
+
+                    if (string.IsNullOrWhiteSpace(msg)) {
+                        continue;
+                    }
+                    cfgResponse(text);
+                    }
+                }
                 //TxtLog.Text += $"[수신] {text}\r\n";
-                Thread.Sleep(1000);
+                //Thread.Sleep(1000);
                 inputToken(rgx, text);
 
 
@@ -215,6 +237,7 @@ namespace test
                 else
                 {
                     _serial.Close();
+                    initData();
                     buttonConnect.Text = "Connect";
                 }
             }
@@ -282,8 +305,6 @@ namespace test
                     int firstCount = receiveData.Count;
                     int fullCount = firstCount + req.Count;
 
-
-
                     SendAndReceiveDRS(req.Address, req.Count);
 
                     int first = 0;
@@ -329,7 +350,6 @@ namespace test
 
                 _serial.Write(cmd, 0, cmd.Length);
 
-                Task.Delay(300);
                 rgx = startAddr;
                 //int len = _serial.BytesToRead;
                 //if (len > 0)
@@ -352,6 +372,57 @@ namespace test
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+
+        private void SendSyncConfig()
+        {
+            string cmdText = $"{0x01:00}SYNC";
+            List<byte> list = new List<byte>();
+            list.Add(0x02); // STX
+            list.AddRange(Encoding.ASCII.GetBytes(cmdText));
+            list.Add(0x0D); // CR
+            list.Add(0x0A); // LF
+
+            byte[] cmd = list.ToArray();
+            _serial.Write(cmd, 0, cmd.Length);
+        }
+
+
+        private void cfgResponse(string msg)
+        {
+            try
+            {
+                string[] tokens = msg.Split(',');
+
+                for (int i = 1; i < tokens.Length; i++)
+                {
+                    string[] pair = tokens[i].Split(':');
+
+                    if (pair.Length == 2)
+                    {
+                        int address = int.Parse(pair[0].Trim());
+                        int value = Convert.ToInt32(pair[1].Trim(), 16);
+
+                        if (configData.dic.ContainsKey(address))
+                        {
+                            configData.dic[address].Value = value;
+                        }
+                        else
+                        {
+                            configData.dic.Add(address, new Param($"Param_{address}", value));
+                        }
+                    }
+                 
+                }
+            }
+            catch (Exception ex)
+            {
+                Invoke(new Action(() =>
+                {
+                    TxtLog.Text += $"Config 파싱 에러: {ex.Message}.\r\n";
+                }));
             }
         }
 
@@ -413,6 +484,13 @@ namespace test
             for (int i = 2; i < tokens.Length; i++)
             {
                 string hexString = tokens[i].Trim();
+
+                if (hexString.Contains(":"))
+                {
+                    string [] pair = hexString.Split(':');
+                    hexString = pair[1].Trim();
+                }
+
                 int decimalValue = Convert.ToInt16(hexString, 16);
 
                 receiveData.Add(new ReceivedData(startAddr + (i - 2), decimalValue));
@@ -426,9 +504,17 @@ namespace test
             public DrsDataEventArgs(List<ReceivedData> data) => DataList = data;
         }
 
-        private void Popup_Click(object sender, EventArgs e)
+        private async void Popup_Click(object sender, EventArgs e)
         {
+
+            if (_serial.IsOpen )
+            {
+                SendSyncConfig();
+                await Task.Delay(500);
+            }
+
             Form2 popup = new Form2();
+
 
             popup.StartPosition = FormStartPosition.CenterParent;
             popup.DrsRequestTriggered += async (s, args) =>
@@ -475,6 +561,8 @@ namespace test
             }
         }
 
+
+
         private void chart1_Click(object sender, EventArgs e)
         {
  
@@ -504,6 +592,9 @@ namespace test
             e.SuppressKeyPress = true;
             
         }
+
+
+
     }
     public class Regist
     {
@@ -539,7 +630,7 @@ namespace test
     {
         public int Address;
         public int Count;
-
+         
         public DrsRequest(int addr, int cnt)
         {
             this.Address = addr;
@@ -547,3 +638,5 @@ namespace test
         }
     }
 }
+
+ 

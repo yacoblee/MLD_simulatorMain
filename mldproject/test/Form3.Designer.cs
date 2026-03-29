@@ -40,19 +40,21 @@
             // setval
             // 
             this.setval.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.setval.Location = new System.Drawing.Point(749, 253);
+            this.setval.Location = new System.Drawing.Point(962, 343);
+            this.setval.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.setval.Multiline = true;
             this.setval.Name = "setval";
-            this.setval.Size = new System.Drawing.Size(58, 39);
+            this.setval.Size = new System.Drawing.Size(80, 55);
             this.setval.TabIndex = 0;
             this.setval.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
             this.label1.BackColor = System.Drawing.Color.SteelBlue;
-            this.label1.Location = new System.Drawing.Point(108, 55);
+            this.label1.Location = new System.Drawing.Point(80, 66);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(219, 29);
+            this.label1.Size = new System.Drawing.Size(301, 41);
             this.label1.TabIndex = 3;
             this.label1.Text = "설명";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -60,9 +62,10 @@
             // label2
             // 
             this.label2.BackColor = System.Drawing.Color.SteelBlue;
-            this.label2.Location = new System.Drawing.Point(324, 55);
+            this.label2.Location = new System.Drawing.Point(378, 66);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(333, 29);
+            this.label2.Size = new System.Drawing.Size(458, 41);
             this.label2.TabIndex = 4;
             this.label2.Text = "설정범위";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -70,9 +73,10 @@
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.SteelBlue;
-            this.label3.Location = new System.Drawing.Point(663, 55);
+            this.label3.Location = new System.Drawing.Point(844, 66);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(226, 29);
+            this.label3.Size = new System.Drawing.Size(311, 41);
             this.label3.TabIndex = 5;
             this.label3.Text = "설정값";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -80,9 +84,10 @@
             // label4
             // 
             this.label4.BackColor = System.Drawing.Color.LightGray;
-            this.label4.Location = new System.Drawing.Point(108, 84);
+            this.label4.Location = new System.Drawing.Point(80, 107);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(219, 388);
+            this.label4.Size = new System.Drawing.Size(301, 543);
             this.label4.TabIndex = 6;
             this.label4.Text = "입력종류";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -90,26 +95,28 @@
             // label5
             // 
             this.label5.BackColor = System.Drawing.Color.LightGray;
-            this.label5.Location = new System.Drawing.Point(327, 84);
+            this.label5.Location = new System.Drawing.Point(382, 107);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(330, 388);
+            this.label5.Size = new System.Drawing.Size(454, 543);
             this.label5.TabIndex = 7;
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label6
             // 
             this.label6.BackColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(663, 84);
+            this.label6.Location = new System.Drawing.Point(844, 107);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(226, 388);
+            this.label6.Size = new System.Drawing.Size(311, 543);
             this.label6.TabIndex = 8;
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form3
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(991, 603);
+            this.ClientSize = new System.Drawing.Size(1229, 759);
             this.Controls.Add(this.setval);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -117,6 +124,7 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form3";
             this.Text = "Form3";
             this.Load += new System.EventHandler(this.Form3_Load);

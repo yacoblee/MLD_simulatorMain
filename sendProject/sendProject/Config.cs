@@ -18,13 +18,6 @@ namespace sendProject
         private readonly static string filePath = Path.Combine(Application.StartupPath, "Settings", "Config.json");
         public Dictionary<int, int> ParamData { get; set; } = new Dictionary<int, int>();
 
-        // 데이터 셀 인덱스
-        public int Idx { get; set; } = 0;
-
-        // 설정 값
-        public int value { get; set; } = 0;
-
-
         public void Save()
         {
             try
