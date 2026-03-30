@@ -70,7 +70,6 @@ namespace sendProject
                 Invoke(new Action(() => { txtBox.Text += $"{Encoding.UTF8.GetString(data)}\n"; }));
             }
 
-
             if (msg.Contains("DRS"))
             {
                 ProcessDRS(msg);

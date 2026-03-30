@@ -20,14 +20,10 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 namespace test
 {
 
-    public static class configData
-    {
-        public static Dictionary<int, Param> dic = new Dictionary<int, Param>();
-    }
+
 
     public partial class Form1 : Form
     {
-
         private const byte STX = 0x02;
         private const byte CR = 0x0D;
         private const byte LF = 0x0A;
@@ -630,10 +626,13 @@ namespace test
             e.SuppressKeyPress = true;
             
         }
-
-
-
     }
+
+    public static class configData
+    {
+        public static Dictionary<int, Param> dic = new Dictionary<int, Param>();
+    }
+
     public class Regist
     {
         public string rgx { get; set; } = "";
