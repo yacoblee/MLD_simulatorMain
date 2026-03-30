@@ -16,7 +16,7 @@ namespace test
 
         Form1 _mainForm;
         public event EventHandler DrsRequestTriggered;
-        private Dictionary<int, Param> _cfg;
+        public event Action<int, int> ConfigRequested;
         private Dictionary<int, Param> cel;
         private Form3 _form3;
 
@@ -575,11 +575,15 @@ namespace test
                 {
                     int rowIndex = item.idx % 100;
                     int colIndex = (item.idx / 100) * 2 + 2;
+
+                    if (configData.dic.ContainsKey(item.idx))
+                    {
+                        item.data = TransPvValue(item.data, configData.dic[item.idx].Value);
+                    }
                     dataGridView2.Rows[rowIndex].Cells[colIndex].Value = item.data;
 
                     if (configData.dic.ContainsKey(item.idx))
                     {
-                        
                         dataGridView2.Rows[rowIndex].Cells[colIndex].Style.BackColor = Color.Green;
                     }
                     else
@@ -589,7 +593,14 @@ namespace test
                 }
             }
         }
-
+        private double TransPvValue(double rawData, double configValue)
+        {
+            if (configValue != 0 && configValue % 2 == 0)
+            {
+                return rawData / 10.0;  
+            }
+            return rawData;
+        }
 
         private void drsBtn_Click(object sender, EventArgs e)
         {
@@ -608,12 +619,39 @@ namespace test
         {
             //saveBtn
 
-            Form3 popup = new Form3();
+       
+        }
 
-            popup.StartPosition = FormStartPosition.CenterParent;
-     
-            popup.ShowDialog();
+        private void dataGridView2_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int rowIndex = e.RowIndex;
+            int colIndex = e.ColumnIndex;
+            int idx = (rowIndex) + ((colIndex - 2)/2  * 100);
+            textBox1.Text += $"{e.RowIndex} col : {e.ColumnIndex} cell \r\n{(e.ColumnIndex - 2) / 2 * 100 + e.RowIndex}\n";
+            
+            
+            if ((dataGridView2.Rows[rowIndex].Cells[colIndex].Style.BackColor == Color.Green)
+                && configData.dic.ContainsKey(idx))
+            {
+                Form3 popup = new Form3(idx);
+                popup.StartPosition = FormStartPosition.CenterParent;
+                popup.ShowDialog();
+
+
+                if (popup.ShowDialog() == DialogResult.OK)
+                {
+                    int updateAddr = popup.TargetIdx;
+                    int updateVal = popup.TargetValue;
+
+                    ConfigRequested?.Invoke(updateAddr, updateVal);
+                }
+          
+
+
+            }
 
         }
     }
 }
+
+//ConfigRequested

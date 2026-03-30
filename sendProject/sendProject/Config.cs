@@ -18,7 +18,7 @@ namespace sendProject
         private readonly static string filePath = Path.Combine(Application.StartupPath, "Settings", "Config.json");
         public Dictionary<int, int> ParamData { get; set; } = new Dictionary<int, int>();
 
-        public void Save()
+        public bool Save()
         {
             try
             {
@@ -26,11 +26,13 @@ namespace sendProject
                 if (!Directory.Exists(directoryName)) { Directory.CreateDirectory(directoryName); }
                 string json = JsonConvert.SerializeObject(this, Formatting.Indented);
                 File.WriteAllText(filePath, json);
+
+                return true; // ★ 에러 없이 파일 쓰기가 끝났다면 true 반환!
             }
-            catch (Exception ex){
-
-                MessageBox.Show($"설정 파일 저장 실패!\n파일이 열려있거나 권한이 없습니다.\n상세: {ex.Message}");
-
+            catch (Exception ex)
+            {
+                MessageBox.Show($"설정 파일 저장 실패!\n상세: {ex.Message}");
+                return false; // ★ 에러가 났다면 false 반환!
             }
         }
 

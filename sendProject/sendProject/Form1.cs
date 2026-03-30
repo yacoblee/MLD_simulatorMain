@@ -84,11 +84,7 @@ namespace sendProject
                 ProcessSYNC();
             }
 
-
-
-
-
-            }
+        }
 
         private void ProcessDWR(String msg)
         {
@@ -108,10 +104,18 @@ namespace sendProject
                     Console.WriteLine($"inValid Range Value");
                     return ;
                 }
- 
-                _man.SetValue(cellIdx, idxValue);
+                string data ="";
 
-                string data = $"{_addr:00}DWR,OK";
+                _man.SetValue(cellIdx, idxValue);
+                _man.Save();
+                if (_man.Save() == true)
+                {
+                    data = $"{_addr:00}DWR,OK";
+                }
+                else
+                {
+                    data = $"{_addr:00}DWR,NO";
+                }
 
                 byte[] by = new byte[data.Length + 3];
 
@@ -139,26 +143,36 @@ namespace sendProject
                 Console.WriteLine(ex.ToString()); return ; 
             }
 
-
-
         }
 
         private void ProcessDRS(String msg)
         {
+
+            Dictionary<int, int> allParams = _man.GetAllParams();
+
+            if (allParams == null || allParams.Count == 0) return;
+
+            int cnt = 1;
+
             Random rand = new Random();
             String[] splitData = msg.Split(',');
-            if (int.TryParse(splitData[1], out int count ))  // 반환 해야할 데이터 갯수
+            if (int.TryParse(splitData[1], out int count ))
             {
 
                 if (int.TryParse(splitData[2], out int idx)) {  
 
-                    // return 형식 만들기 
                     string data = $"{_addr:00}DRS,OK";
                     for (int i = idx; i < count + idx; i++)
                     {
                         int randomValue = rand.Next(0, 101);
+
+                        if (allParams.ContainsKey(i))
+                        {
+                            randomValue = TransPvValue(i, allParams[i], randomValue);
+                        }
                         data += randomValue.ToString("X4");
                         if (i != idx + count - 1) { data += ","; }
+                        cnt++;
                     }
 
                     byte [] by = new byte[data.Length + 3];
@@ -232,21 +246,13 @@ namespace sendProject
         }
 
 
-        private int TransPvValue(int cellIdx, int value)
+        private int TransPvValue(int cellIdx, int value, int resultValue)
         {
-
-            if (_man.pvGroup.Contains(cellIdx))
+            if (value % 2 == 0)
             {
-                if (value % 2 == 0)
-                {
-                    // 2의 배수라면 10으로 나눈 값을 반환
-                    // (주의: int 자료형이므로 12 / 10 은 1로 소수점이 버려집니다)
-                    return value / 10;
-                }
+                return resultValue * 10;
             }
-
-
-            return value;
+            return resultValue;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)

@@ -35,18 +35,21 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.registBtn = new System.Windows.Forms.Button();
+            this.cancelBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // setval
             // 
             this.setval.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.setval.Location = new System.Drawing.Point(962, 343);
-            this.setval.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.setval.Margin = new System.Windows.Forms.Padding(4);
             this.setval.Multiline = true;
             this.setval.Name = "setval";
             this.setval.Size = new System.Drawing.Size(80, 55);
             this.setval.TabIndex = 0;
             this.setval.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.setval.TextChanged += new System.EventHandler(this.setval_TextChanged);
             // 
             // label1
             // 
@@ -112,11 +115,35 @@
             this.label6.TabIndex = 8;
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // registBtn
+            // 
+            this.registBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.registBtn.Location = new System.Drawing.Point(1015, 678);
+            this.registBtn.Name = "registBtn";
+            this.registBtn.Size = new System.Drawing.Size(133, 56);
+            this.registBtn.TabIndex = 9;
+            this.registBtn.Text = "등록";
+            this.registBtn.UseVisualStyleBackColor = true;
+            this.registBtn.Click += new System.EventHandler(this.registBtn_Click);
+            // 
+            // cancelBtn
+            // 
+            this.cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cancelBtn.Location = new System.Drawing.Point(863, 678);
+            this.cancelBtn.Name = "cancelBtn";
+            this.cancelBtn.Size = new System.Drawing.Size(133, 56);
+            this.cancelBtn.TabIndex = 10;
+            this.cancelBtn.Text = "취소";
+            this.cancelBtn.UseVisualStyleBackColor = true;
+            this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1229, 759);
+            this.Controls.Add(this.cancelBtn);
+            this.Controls.Add(this.registBtn);
             this.Controls.Add(this.setval);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -124,7 +151,7 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form3";
             this.Text = "Form3";
             this.Load += new System.EventHandler(this.Form3_Load);
@@ -142,5 +169,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button registBtn;
+        private System.Windows.Forms.Button cancelBtn;
     }
 }

@@ -151,6 +151,12 @@ namespace test
                     }
                     cfgResponse(text);
                     }
+                } else if (text.Contains("DWR,OK"))
+                {
+                    SendSyncConfig();
+                } else if (text.Contains("DWR,NO"))
+                {
+                  
                 }
                 //TxtLog.Text += $"[수신] {text}\r\n";
                 //Thread.Sleep(1000);
@@ -375,6 +381,33 @@ namespace test
             }
         }
 
+        private void SendAndReceiveDWR(int cellIdx, int value)
+        {
+            try
+            {
+                string body = string.Format("DWR,01,{0:D4},{1:X4}", cellIdx, value);
+                List<byte> list = new List<byte>();
+                list.Add(STX);
+                list.Add(ADDR1);
+                list.Add(ADDR2);
+
+                list.AddRange(Encoding.ASCII.GetBytes(body));
+
+                list.Add(CR);
+                list.Add(LF);
+
+                byte[] cmd = list.ToArray();
+
+                _serial.Write(cmd, 0, cmd.Length);
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
 
         private void SendSyncConfig()
         {
@@ -526,6 +559,11 @@ namespace test
                     popup.DataReceived(this, new DrsDataEventArgs(resultList));
                 }
             };
+
+            popup.ConfigRequested += (address, value) =>
+            {
+                SendAndReceiveDWR(address, value);
+            };
             popup.ShowDialog();
         }
         private void InitChart()
@@ -618,8 +656,8 @@ namespace test
     public class ReceivedData
     {
         public int idx { get; set; }
-        public int data { get; set; }
-        public ReceivedData(int idx, int data)
+        public double data { get; set; }
+        public ReceivedData(int idx, double data)
         {
             this.idx = idx;
             this.data = data;

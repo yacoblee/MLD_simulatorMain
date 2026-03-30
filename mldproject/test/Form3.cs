@@ -12,9 +12,15 @@ namespace test
 {
     public partial class Form3 : Form
     {
-        public Form3()
+        public int TargetIdx { get; private set; }
+        public int TargetValue { get; private set; }
+
+
+        public Form3(int idx)
         {
             InitializeComponent();
+            TargetIdx = idx;
+            setval.Text = configData.dic[idx].Value.ToString();
             label5.Font = new Font("Consolas", 10F, FontStyle.Regular);
             label5.Text =
 @"1 : K    ( -200 ~ 1370 )
@@ -35,7 +41,6 @@ namespace test
 16: U    ( -50.0 ~ 400.0 )
 17: W    ( 0 ~ 2300 )
 18: PLII ( 0 ~ 1300 )";
-  
         }
 
         private void Form3_Load(object sender, EventArgs e)
@@ -43,5 +48,34 @@ namespace test
             label1.BackColor = SystemColors.GrayText;
         }
 
+        private void registBtn_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(setval.Text, out int inputVal))
+            {
+                if (0 < inputVal && inputVal < 19)
+                {
+                    TargetValue = inputVal;
+                    this.DialogResult = DialogResult.OK;
+                }
+                else
+                {
+                    MessageBox.Show("1 ~ 18 사이의 값을 입력해주세요.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("올바른 숫자를 입력해주세요.");
+            }
+        }
+
+        private void setval_TextChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void cancelBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

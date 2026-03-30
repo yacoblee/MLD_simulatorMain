@@ -76,9 +76,9 @@ namespace sendProject
             return _cfg.ParamData;
         }
 
-        public void Save()
+        public bool Save()
         {
-            _cfg.Save();
+            return _cfg.Save();
         }
     }
 }
