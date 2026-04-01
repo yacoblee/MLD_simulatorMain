@@ -52,7 +52,7 @@
             this.unusable = new System.Windows.Forms.Label();
             this.unusable1 = new System.Windows.Forms.Label();
             this.saveBtn = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.openBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -302,7 +302,7 @@
             // saveBtn
             // 
             this.saveBtn.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.saveBtn.Location = new System.Drawing.Point(1183, 144);
+            this.saveBtn.Location = new System.Drawing.Point(995, 144);
             this.saveBtn.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(187, 89);
@@ -311,13 +311,17 @@
             this.saveBtn.UseVisualStyleBackColor = true;
             this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
             // 
-            // textBox1
+            // openBtn
             // 
-            this.textBox1.Location = new System.Drawing.Point(60, 12);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(1054, 221);
-            this.textBox1.TabIndex = 112;
+            this.openBtn.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.openBtn.Location = new System.Drawing.Point(1199, 144);
+            this.openBtn.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.openBtn.Name = "openBtn";
+            this.openBtn.Size = new System.Drawing.Size(187, 89);
+            this.openBtn.TabIndex = 111;
+            this.openBtn.Text = "저장";
+            this.openBtn.UseVisualStyleBackColor = true;
+            this.openBtn.Click += new System.EventHandler(this.saveBtn_Click);
             // 
             // Form2
             // 
@@ -325,7 +329,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1677, 1195);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.openBtn);
             this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.unusable1);
             this.Controls.Add(this.usable1);
@@ -374,6 +378,6 @@
         private System.Windows.Forms.Label unusable1;
         private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.DataGridView dataGridView2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button openBtn;
     }
 }

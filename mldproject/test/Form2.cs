@@ -617,9 +617,44 @@ namespace test
 
         private void saveBtn_Click(object sender, EventArgs e)
         {
-            //saveBtn
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "파라미터 저장";
+            sfd.Filter = "MLN 파일 (*.mln)|*.mln|모든 파일 (*.*)|*.*";
+            sfd.DefaultExt = "mln";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    StringBuilder sb = new StringBuilder();
 
-       
+                    // 2. 그리드의 0번 줄부터 99번 줄까지 순회
+                    for (int i = 0; i < dataGridView2.Rows.Count; i++)
+                    {
+                        List<string> rowValues = new List<string>();
+
+                        // 3. 컬럼 1번(이름) ~ 10번(값) 까지 10개의 셀 데이터를 수집
+                        for (int col = 1; col <= 10; col++)
+                        {
+                            var cellValue = dataGridView2.Rows[i].Cells[col].Value;
+
+                            // 값이 없으면 빈칸(""), 있으면 문자열로 변환해서 리스트에 추가
+                            rowValues.Add(cellValue == null ? "" : cellValue.ToString());
+                        }
+
+                        // 4. 수집한 10개의 데이터를 쉼표(,)로 이어 붙여서 한 줄 완성!
+                        sb.AppendLine(string.Join(",", rowValues));
+                    }
+
+                    // 5. 완성된 전체 텍스트를 파일로 저장
+                    System.IO.File.WriteAllText(sfd.FileName, sb.ToString(), Encoding.UTF8);
+
+                    MessageBox.Show("저장이 완료되었습니다.", "저장 성공", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"파일 저장 중 오류가 발생했습니다.\n{ex.Message}", "저장 에러", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void dataGridView2_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -627,8 +662,6 @@ namespace test
             int rowIndex = e.RowIndex;
             int colIndex = e.ColumnIndex;
             int idx = (rowIndex) + ((colIndex - 2)/2  * 100);
-            textBox1.Text += $"{e.RowIndex} col : {e.ColumnIndex} cell \r\n{(e.ColumnIndex - 2) / 2 * 100 + e.RowIndex}\n";
-            
             
             if ((dataGridView2.Rows[rowIndex].Cells[colIndex].Style.BackColor == Color.Green)
                 && configData.dic.ContainsKey(idx))
