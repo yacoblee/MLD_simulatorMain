@@ -656,6 +656,54 @@ namespace test
                 }
             }
         }
+        private void loadBtn_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "파라미터 불러오기";
+            ofd.Filter = "MLN 파일 (*.mln)|*.mln|모든 파일 (*.*)|*.*";
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    // 2. 파일의 전체 텍스트를 줄바꿈(엔터) 기준으로 다 읽어옵니다.
+                    string[] lines = System.IO.File.ReadAllLines(ofd.FileName, Encoding.UTF8);
+
+                    // 3. 그리드의 줄 수(100줄)와 파일의 줄 수를 비교해서 안전하게 돕니다.
+                    int maxRow = Math.Min(lines.Length, dataGridView2.Rows.Count);
+
+                    for (int i = 0; i < maxRow; i++)
+                    {
+                        // 4. 한 줄을 쉼표(,) 기준으로 쪼갭니다.
+                        string[] tokens = lines[i].Split(',');
+
+                        // 5. 저장할 때 10개(이름, 값 5세트)를 넣었으므로 길이가 10인지 검사합니다.
+                        if (tokens.Length >= 10)
+                        {
+                            // 6. 컬럼 1번부터 10번까지 순회하며 그리드에 꽂아 넣습니다.
+                            for (int col = 1; col <= 10; col++)
+                            {
+                                // 배열 인덱스는 0부터 시작하므로 col - 1
+                                string cellData = tokens[col - 1].Trim();
+
+                                // 빈칸이 아닐 때만 그리드의 해당 칸에 텍스트를 세팅!
+                                if (!string.IsNullOrWhiteSpace(cellData))
+                                {
+                                    dataGridView2.Rows[i].Cells[col].Value = cellData;
+                                }
+                            }
+                        }
+                    }
+
+                    MessageBox.Show("파일 불러오기가 완료되었습니다.", "로드 성공", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"파일 파싱 중 오류가 발생했습니다.\n{ex.Message}", "로드 에러", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+            }
+        }
 
         private void dataGridView2_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -684,6 +732,8 @@ namespace test
             }
 
         }
+
+
     }
 }
 
