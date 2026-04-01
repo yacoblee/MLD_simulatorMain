@@ -10,11 +10,16 @@ using Newtonsoft.Json;
 
 namespace test
 {
-    internal class SettingCon
+    public class SettingCon
     {
         private readonly static string filePath = Path.Combine(Application.StartupPath, "Settings", "Setting.json");
         public Dictionary<int, string> ParamData { get; set; } = new Dictionary<int, string>();
-
+        public string PortName { get; set; } = "";
+        public int SpeedIndex { get; set; } = 1;     
+        public int BitIndex { get; set; } = 0;       
+        public int LengthIndex { get; set; } = 1;     
+        public int StopBitIndex { get; set; } = 0;  
+        public int ProtocolIndex { get; set; } = 0;  
 
         public bool Save()
         {
@@ -58,5 +63,4 @@ namespace test
 
 
 
-}
 }

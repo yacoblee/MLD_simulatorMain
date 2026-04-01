@@ -52,7 +52,28 @@ namespace test
 
         List<DrsRequest> request2 = new List<DrsRequest> { new DrsRequest(1, 32) }; // 실시간 차트전용
 
+        private void InitComboBoxes()
+        {
+            cmbSpeed.DataSource = new BindingSource(new Dictionary<int, string>
+        { { 0, "4800" }, { 1, "9600" }, { 2, "19200" }, { 3, "38400" }, { 4, "57600" }, { 5, "76800" }, { 6, "115200" } }, null);
+            cmbSpeed.DisplayMember = "Value"; cmbSpeed.ValueMember = "Key";
 
+            cmbBit.DataSource = new BindingSource(new Dictionary<int, string>
+        { { 0, "None" }, { 1, "Even" }, { 2, "Odd" }, { 3, "Mark" }, { 4, "Space" } }, null);
+            cmbBit.DisplayMember = "Value"; cmbBit.ValueMember = "Key";
+
+            cmbLength.DataSource = new BindingSource(new Dictionary<int, string>
+        { { 0, "7" }, { 1, "8" }, { 2, "9" } }, null);
+            cmbLength.DisplayMember = "Value"; cmbLength.ValueMember = "Key";
+
+            cmbStopBit.DataSource = new BindingSource(new Dictionary<int, string>
+        { { 0, "One" }, { 1, "Two" }, { 2, "OnePointFive" } }, null);
+            cmbStopBit.DisplayMember = "Value"; cmbStopBit.ValueMember = "Key";
+
+            cmbProtocol.DataSource = new BindingSource(new Dictionary<int, string>
+        { { 0, "PC-LINK STD" }, { 1, "PC-LINK+SUM" }, { 2, "MODBUS ASCII" }, { 3, "MODBUS RTU" } }, null);
+            cmbProtocol.DisplayMember = "Value"; cmbProtocol.ValueMember = "Key";
+        }
         public void initData ()
         {
             receiveData.Clear();
@@ -72,12 +93,8 @@ namespace test
             _timer.Interval = 5000;
             _timer.Elapsed += _timer_Elapsed;
 
-            //_serial.PortName = "COM4"; // 메인pc 역활
-            //_serial.BaudRate = 9600;
-            //_serial.Parity = Parity.None;
-            //_serial.DataBits = 8;
-            //_serial.ReadTimeout = 1000;
-            //_serial.WriteTimeout = 1000;
+            cmbPortName.Items.AddRange(SerialPort.GetPortNames());
+
             _serial.DataReceived += _serial_DataReceived;
             //_serial.Open();
 
@@ -87,7 +104,21 @@ namespace test
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+
+            SettingCon loadedConfig = SettingCon.Load();
+            _man = new Man(loadedConfig);
+
+            // 2. 콤보박스 데이터 채우기 (여기에 다 모아줍니다)
+            InitComboBoxes();
+
+            if (cmbPortName.Items.Contains(_man.Config.PortName))
+                cmbPortName.Text = _man.Config.PortName;
+
+            cmbSpeed.SelectedIndex = _man.Config.SpeedIndex;
+            cmbBit.SelectedIndex = _man.Config.BitIndex;
+            cmbLength.SelectedIndex = _man.Config.LengthIndex;
+            cmbStopBit.SelectedIndex = _man.Config.StopBitIndex;
+            cmbProtocol.SelectedIndex = _man.Config.ProtocolIndex;
         }
 
 
@@ -230,12 +261,20 @@ namespace test
                 if (!_serial.IsOpen)
                 {
                     _serial.PortName = cmbPortName.Text;
-                    _serial.BaudRate = 9600;
-                    _serial.DataBits = 8;
-                    _serial.Parity = Parity.Even;
-                    _serial.StopBits = StopBits.One;
+                    _serial.BaudRate = int.Parse(cmbSpeed.Text);
+                    _serial.DataBits = int.Parse(cmbLength.Text);
+                    _serial.Parity = (Parity)Enum.Parse(typeof(Parity), cmbBit.Text);  
+                    _serial.StopBits = (StopBits)Enum.Parse(typeof(StopBits), cmbStopBit.Text); 
                     _serial.Open();
                     buttonConnect.Text = "Disconnect";
+
+                    _man.Config.PortName = cmbPortName.Text;
+                    _man.Config.SpeedIndex = cmbSpeed.SelectedIndex;
+                    _man.Config.BitIndex = cmbBit.SelectedIndex;
+                    _man.Config.LengthIndex = cmbLength.SelectedIndex;
+                    _man.Config.StopBitIndex = cmbStopBit.SelectedIndex;
+                    _man.Config.ProtocolIndex = cmbProtocol.SelectedIndex;
+                    _man.Save();
                 }
                 else
                 {
@@ -596,13 +635,6 @@ namespace test
             }
         }
 
-
-
-        private void chart1_Click(object sender, EventArgs e)
-        {
- 
-        }
-
         private void btTimer_Click(object sender, EventArgs e)
         {
 
@@ -627,6 +659,8 @@ namespace test
             e.SuppressKeyPress = true;
             
         }
+
+
     }
 
     public static class configData
