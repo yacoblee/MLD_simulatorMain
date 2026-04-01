@@ -661,16 +661,16 @@ namespace test
         {
             int rowIndex = e.RowIndex;
             int colIndex = e.ColumnIndex;
-            int idx = (rowIndex) + ((colIndex - 2)/2  * 100);
+            if (rowIndex < 0 || colIndex < 0) return;
             
+            int idx = (rowIndex) + ((colIndex - 2)/2  * 100);
+
             if ((dataGridView2.Rows[rowIndex].Cells[colIndex].Style.BackColor == Color.Green)
                 && configData.dic.ContainsKey(idx))
             {
                 Form3 popup = new Form3(idx);
                 popup.StartPosition = FormStartPosition.CenterParent;
-                popup.ShowDialog();
-
-
+   
                 if (popup.ShowDialog() == DialogResult.OK)
                 {
                     int updateAddr = popup.TargetIdx;
