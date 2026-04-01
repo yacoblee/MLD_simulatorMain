@@ -34,6 +34,7 @@ namespace test
         
         
         private Form2 _frm2;
+        private Man _man;
         private SerialPort _serial;
         private System.Timers.Timer _timer;
         

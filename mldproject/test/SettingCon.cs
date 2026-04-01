@@ -8,15 +8,13 @@ using System.Windows.Forms;
 using System.Globalization;
 using Newtonsoft.Json;
 
-
-namespace sendProject
+namespace test
 {
-
-    public class Config
+    internal class SettingCon
     {
-        // 저장 경로
-        private readonly static string filePath = Path.Combine(Application.StartupPath, "Settings", "Config.json");
-        public Dictionary<int, int> ParamData { get; set; } = new Dictionary<int, int>();
+        private readonly static string filePath = Path.Combine(Application.StartupPath, "Settings", "Setting.json");
+        public Dictionary<int, string> ParamData { get; set; } = new Dictionary<int, string>();
+
 
         public bool Save()
         {
@@ -36,19 +34,19 @@ namespace sendProject
             }
         }
 
-        public static Config Load()
+        public static SettingCon Load()
         {
             if (!File.Exists(filePath))
             {
-                var config = new Config();
+                var config = new SettingCon();
                 config.Save();
                 return config;
             }
 
             string json = File.ReadAllText(filePath);
 
-            var deserializeObj = JsonConvert.DeserializeObject<Config>(json);
-            if (deserializeObj == null) { deserializeObj = new Config(); }
+            var deserializeObj = JsonConvert.DeserializeObject<SettingCon>(json);
+            if (deserializeObj == null) { deserializeObj = new SettingCon(); }
             deserializeObj.Save();
 
             return deserializeObj;
@@ -57,4 +55,8 @@ namespace sendProject
 
 
     }
+
+
+
+}
 }

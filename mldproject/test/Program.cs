@@ -16,7 +16,12 @@ namespace test
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            SettingCon cfg = SettingCon.Load();
+            Man man = new Man(cfg);
+
             Application.Run(new Form1());
+
         }
     }
 }
