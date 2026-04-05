@@ -618,7 +618,7 @@ namespace test
         private void saveBtn_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Title = "파라미터 저장";
+            sfd.Title = "tmp";
             sfd.Filter = "MLN 파일 (*.mln)|*.mln|모든 파일 (*.*)|*.*";
             sfd.DefaultExt = "mln";
             if (sfd.ShowDialog() == DialogResult.OK)
@@ -626,26 +626,19 @@ namespace test
                 try
                 {
                     StringBuilder sb = new StringBuilder();
-
-                    // 2. 그리드의 0번 줄부터 99번 줄까지 순회
                     for (int i = 0; i < dataGridView2.Rows.Count; i++)
                     {
                         List<string> rowValues = new List<string>();
 
-                        // 3. 컬럼 1번(이름) ~ 10번(값) 까지 10개의 셀 데이터를 수집
                         for (int col = 1; col <= 10; col++)
                         {
                             var cellValue = dataGridView2.Rows[i].Cells[col].Value;
 
-                            // 값이 없으면 빈칸(""), 있으면 문자열로 변환해서 리스트에 추가
                             rowValues.Add(cellValue == null ? "" : cellValue.ToString());
                         }
-
-                        // 4. 수집한 10개의 데이터를 쉼표(,)로 이어 붙여서 한 줄 완성!
                         sb.AppendLine(string.Join(",", rowValues));
                     }
 
-                    // 5. 완성된 전체 텍스트를 파일로 저장
                     System.IO.File.WriteAllText(sfd.FileName, sb.ToString(), Encoding.UTF8);
 
                     MessageBox.Show("저장이 완료되었습니다.", "저장 성공", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -656,6 +649,7 @@ namespace test
                 }
             }
         }
+
         private void loadBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -666,27 +660,25 @@ namespace test
             {
                 try
                 {
-                    // 2. 파일의 전체 텍스트를 줄바꿈(엔터) 기준으로 다 읽어옵니다.
+                    
                     string[] lines = System.IO.File.ReadAllLines(ofd.FileName, Encoding.UTF8);
 
-                    // 3. 그리드의 줄 수(100줄)와 파일의 줄 수를 비교해서 안전하게 돕니다.
+                    
                     int maxRow = Math.Min(lines.Length, dataGridView2.Rows.Count);
 
                     for (int i = 0; i < maxRow; i++)
                     {
-                        // 4. 한 줄을 쉼표(,) 기준으로 쪼갭니다.
+                    
                         string[] tokens = lines[i].Split(',');
 
-                        // 5. 저장할 때 10개(이름, 값 5세트)를 넣었으므로 길이가 10인지 검사합니다.
+                    
                         if (tokens.Length >= 10)
                         {
-                            // 6. 컬럼 1번부터 10번까지 순회하며 그리드에 꽂아 넣습니다.
+       
                             for (int col = 1; col <= 10; col++)
                             {
-                                // 배열 인덱스는 0부터 시작하므로 col - 1
+       
                                 string cellData = tokens[col - 1].Trim();
-
-                                // 빈칸이 아닐 때만 그리드의 해당 칸에 텍스트를 세팅!
                                 if (!string.IsNullOrWhiteSpace(cellData))
                                 {
                                     dataGridView2.Rows[i].Cells[col].Value = cellData;

@@ -81,6 +81,9 @@ namespace sendProject
             else if (msg.Contains("SYNC"))
             {
                 ProcessSYNC();
+            } else if (msg.Contains("DWS"))
+            {
+                 
             }
 
         }

@@ -31,23 +31,26 @@
             this.portList = new System.Windows.Forms.ComboBox();
             this.conBtn = new System.Windows.Forms.Button();
             this.txtBox = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // portList
             // 
             this.portList.FormattingEnabled = true;
-            this.portList.Location = new System.Drawing.Point(402, 89);
+            this.portList.Location = new System.Drawing.Point(65, 72);
+            this.portList.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.portList.Name = "portList";
-            this.portList.Size = new System.Drawing.Size(121, 23);
+            this.portList.Size = new System.Drawing.Size(106, 20);
             this.portList.TabIndex = 0;
             this.portList.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             this.portList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.portList_KeyDown);
             // 
             // conBtn
             // 
-            this.conBtn.Location = new System.Drawing.Point(402, 144);
+            this.conBtn.Location = new System.Drawing.Point(233, 48);
+            this.conBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.conBtn.Name = "conBtn";
-            this.conBtn.Size = new System.Drawing.Size(121, 50);
+            this.conBtn.Size = new System.Drawing.Size(106, 40);
             this.conBtn.TabIndex = 1;
             this.conBtn.Text = "Connect";
             this.conBtn.UseVisualStyleBackColor = true;
@@ -55,22 +58,36 @@
             // 
             // txtBox
             // 
-            this.txtBox.Location = new System.Drawing.Point(12, 89);
+            this.txtBox.Location = new System.Drawing.Point(32, 102);
+            this.txtBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtBox.Multiline = true;
             this.txtBox.Name = "txtBox";
             this.txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtBox.Size = new System.Drawing.Size(384, 363);
+            this.txtBox.Size = new System.Drawing.Size(327, 309);
             this.txtBox.TabIndex = 2;
             this.txtBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
+            // label5
+            // 
+            this.label5.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.label5.Location = new System.Drawing.Point(65, 53);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(105, 17);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Port";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(567, 515);
+            this.ClientSize = new System.Drawing.Size(405, 520);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.txtBox);
             this.Controls.Add(this.conBtn);
             this.Controls.Add(this.portList);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -84,6 +101,7 @@
         private System.Windows.Forms.ComboBox portList;
         private System.Windows.Forms.Button conBtn;
         private System.Windows.Forms.TextBox txtBox;
+        private System.Windows.Forms.Label label5;
     }
 }
 

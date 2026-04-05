@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -37,8 +38,8 @@ namespace test
         private Man _man;
         private SerialPort _serial;
         private System.Timers.Timer _timer;
-        
-        
+
+
         private List<ReceivedData> receiveData = new List<ReceivedData>();
 
         List<DrsRequest> request1 = new List<DrsRequest>{
@@ -73,13 +74,16 @@ namespace test
             cmbProtocol.DataSource = new BindingSource(new Dictionary<int, string>
         { { 0, "PC-LINK STD" }, { 1, "PC-LINK+SUM" }, { 2, "MODBUS ASCII" }, { 3, "MODBUS RTU" } }, null);
             cmbProtocol.DisplayMember = "Value"; cmbProtocol.ValueMember = "Key";
+
+            cmbNet.DataSource = new BindingSource(new Dictionary<int, string>
+                { { 0, "NONE" }, { 1, "Demo1" }, { 2, "Demo2" }}, null);
+            cmbProtocol.DisplayMember = "Value"; cmbProtocol.ValueMember = "Key";
         }
         public void initData ()
         {
             receiveData.Clear();
             configData.dic.Clear();
         }
-
 
 
         public Form1()
@@ -96,6 +100,7 @@ namespace test
             cmbPortName.Items.AddRange(SerialPort.GetPortNames());
 
             _serial.DataReceived += _serial_DataReceived;
+
             //_serial.Open();
 
             //_timer.Tick += _timer_Tick;
@@ -107,8 +112,7 @@ namespace test
 
             SettingCon loadedConfig = SettingCon.Load();
             _man = new Man(loadedConfig);
-
-            // 2. 콤보박스 데이터 채우기 (여기에 다 모아줍니다)
+            
             InitComboBoxes();
 
             if (cmbPortName.Items.Contains(_man.Config.PortName))
@@ -123,9 +127,7 @@ namespace test
 
 
 
-        private void _serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-
+            /* 
             //마샬링 -> 비동기 ( UI 제어 불가 ) -> 제어문 안으로 진입 - 화면이 안멈춤
             //false 는 동기 실행으로 UI 제어 가능 - 동기로 인한 화면 멈춤
             //if (InvokeRequired)
@@ -141,18 +143,20 @@ namespace test
             //string data = _serial.ReadExisting();
             //if (data == null) { return; }
             //TxtLog.Text += data;
-            /*         int length = _serial.BytesToRead;
+                    int length = _serial.BytesToRead;
 
-                     byte[] byt = new byte[length];
-                     _serial.Read(byt, 0, byt.Length);
+                         byte[] byt = new byte[length];
+                         _serial.Read(byt, 0, byt.Length);
 
-                     byte[] data = new byte[byt.Length - 3];
-                     Array.Copy(byt, 1, data, 0, data.Length);
+                         byte[] data = new byte[byt.Length - 3];
+                         Array.Copy(byt, 1, data, 0, data.Length);
 
-                     String msg = Encoding.UTF8.GetString(data);
-         */
-            
-            if (IsDisposed) // 갱신할 대상의 존재 유무 파악 용도
+                         String msg = Encoding.UTF8.GetString(data);
+             */
+        private void _serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+
+            if (IsDisposed)
             {
                 return;
             }
@@ -169,36 +173,30 @@ namespace test
                 if (text.Contains("SYNC"))
                 {
                     while (_rxBuffer.Contains("\n")) { 
-                        int index = _rxBuffer.IndexOf("\n");
-                    string msg = _rxBuffer.Substring(0, index); 
-                    _rxBuffer = _rxBuffer.Substring(index + 1); 
-                    msg = msg.Replace("\r", "").Replace("\n", "").Replace("\u0002", "");
+                            int index = _rxBuffer.IndexOf("\n");
+                        string msg = _rxBuffer.Substring(0, index); 
+                        _rxBuffer = _rxBuffer.Substring(index + 1); 
+                        msg = msg.Replace("\r", "").Replace("\n", "").Replace("\u0002", "");
 
-                    if (string.IsNullOrWhiteSpace(msg)) {
-                        continue;
-                    }
-                    cfgResponse(text);
-                    }
-                } else if (text.Contains("DWR,OK"))
+                        if (string.IsNullOrWhiteSpace(msg)) {
+                            continue;
+                        }
+                        cfgResponse(text);
+                        }
+                } else if (text.Contains("DWR,OK")) {
+                        SendSyncConfig(); 
+                } else if (text.Contains("DWR,NO")){
+
+                }
+                else
                 {
-                    SendSyncConfig();
-                } else if (text.Contains("DWR,NO"))
-                {
-                  
+                    inputToken(rgx, text);
                 }
                 //TxtLog.Text += $"[수신] {text}\r\n";
-                //Thread.Sleep(1000);
-                inputToken(rgx, text);
-
 
             }
           
         }
-
-
-
-
-
 
         private void Buttonwho_Click(object sender, EventArgs e)
         {
@@ -296,6 +294,11 @@ namespace test
             cmbPortName.Items.AddRange(SerialPort.GetPortNames());
         }
 
+        private void cmbNet_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+        }
+
         private void TxtLog_TextChanged(object sender, EventArgs e)
         {
             if (TxtLog.Text.Length > 10000)
@@ -332,7 +335,7 @@ namespace test
         }
 
 
-        public List<ReceivedData> ExecuteDrsTimer()
+        public async Task<List<ReceivedData>> ExecuteDrsTimer()
         {
             if (!_serial.IsOpen) return null;
         
@@ -349,16 +352,7 @@ namespace test
 
                     SendAndReceiveDRS(req.Address, req.Count);
 
-                    int first = 0;
-                    while (first < fullCount)
-                    {
-                        first++;
-                        
-                        if (first > 50)
-                        {
-                            break;
-                        }
-                    }
+                    await Task.Delay(300);
                 }
 
                 return receiveData;
@@ -495,9 +489,9 @@ namespace test
             }
         }
 
-        private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private async void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            List<ReceivedData> result =  ExecuteDrsTimer();
+            List<ReceivedData> result = await ExecuteDrsTimer();
 
             if (result != null)
             {
@@ -526,7 +520,6 @@ namespace test
                 for (int i = 0; i < 4; i++)
                 {
                     string seriesName = $"PV{i + 1}";
-
 
                     chart1.Series[seriesName].Points.AddXY(now, dataList[i].data);
 
@@ -635,13 +628,13 @@ namespace test
             }
         }
 
-        private void btTimer_Click(object sender, EventArgs e)
+        private async void btTimer_Click(object sender, EventArgs e)
         {
 
             if (!_timer.Enabled)
             {
                 btTimer.Text = "Stop";
-                List<ReceivedData> initialData = ExecuteDrsTimer();
+                List<ReceivedData> initialData = await ExecuteDrsTimer();
                 UpdateChart(initialData);
                 
 
@@ -660,7 +653,14 @@ namespace test
             
         }
 
-
+        private void tcpConn_Click(object sender, EventArgs e)
+        {
+            if (cmbNet.SelectedIndex < 4)
+            {
+                TcpForm popup = new TcpForm();
+                popup.Show();
+            }
+        }
     }
 
     public static class configData
