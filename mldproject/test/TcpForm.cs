@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Windows.Forms;
 
 namespace test
@@ -38,10 +39,7 @@ namespace test
                 {
                     if (serBtn.Checked)
                     {
-                        // =======================================================
-                        // ★ 내 팝업창 함수가 아니라, _tcp 객체 안의 함수를 실행!
-                        // =======================================================
-                        _ = _tcp.StartServerAsync(ip, port); // Task 잊음 처리
+                        _ = _tcp.StartServerAsync(ip, port);
                         tcpConn.Text = "Stop Server";
                     }
                     else if (cliBtn.Checked)
@@ -49,14 +47,13 @@ namespace test
                         int timeoutMs = (int)timeOutUpDown.Value;
                         int retrySec = (int)reConnUpDown.Value;
 
-                        // ★ _tcp 객체의 함수를 호출
                         await _tcp.ConnectAsClientAsync(ip, port, timeoutMs, retrySec);
                         tcpConn.Text = "Disconnect";
                     }
                 }
                 else
                 {
-                    _tcp.DisconnectAll(); // ★ _tcp 객체의 함수 호출
+                    _tcp.DisconnectAll();
                     tcpConn.Text = serBtn.Checked ? "Start Server" : "Connect";
                 }
             }
@@ -82,6 +79,14 @@ namespace test
                 ipBox.Enabled = true;
                 tcpConn.Text = "Connect";
             }
+        }
+
+        private async void sendBtn_Click(object sender, EventArgs e)
+        {
+            string msg = sendTxt.Text;
+            Encoding encode = Encoding.UTF8;
+            await _tcp.SendDataAsync(msg, encode);
+            sendTxt.Clear();
         }
     }
 }

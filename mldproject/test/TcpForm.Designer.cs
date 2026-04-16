@@ -29,30 +29,30 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tcpConn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.ipBox = new System.Windows.Forms.TextBox();
             this.portBox = new System.Windows.Forms.TextBox();
+            this.ipBox = new System.Windows.Forms.TextBox();
+            this.reConnUpDown = new System.Windows.Forms.NumericUpDown();
+            this.timeOutUpDown = new System.Windows.Forms.NumericUpDown();
+            this.tcpConn = new System.Windows.Forms.Button();
             this.sendBtn = new System.Windows.Forms.Button();
             this.serBtn = new System.Windows.Forms.RadioButton();
             this.cliBtn = new System.Windows.Forms.RadioButton();
             this.logTxt = new System.Windows.Forms.TextBox();
             this.sendTxt = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.timeOutUpDown = new System.Windows.Forms.NumericUpDown();
-            this.reConnUpDown = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.reConnUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeOutUpDown)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timeOutUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.reConnUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -80,17 +80,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(776, 263);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // tcpConn
-            // 
-            this.tcpConn.Font = new System.Drawing.Font("굴림", 10F);
-            this.tcpConn.Location = new System.Drawing.Point(442, 24);
-            this.tcpConn.Name = "tcpConn";
-            this.tcpConn.Size = new System.Drawing.Size(178, 78);
-            this.tcpConn.TabIndex = 1;
-            this.tcpConn.Text = "Connect";
-            this.tcpConn.UseVisualStyleBackColor = true;
-            this.tcpConn.Click += new System.EventHandler(this.tcpConn_Click);
             // 
             // label1
             // 
@@ -144,13 +133,6 @@
             this.label4.Text = "Reconn Interval(sec)";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // ipBox
-            // 
-            this.ipBox.Location = new System.Drawing.Point(320, 3);
-            this.ipBox.Name = "ipBox";
-            this.ipBox.Size = new System.Drawing.Size(453, 32);
-            this.ipBox.TabIndex = 1;
-            // 
             // portBox
             // 
             this.portBox.Font = new System.Drawing.Font("굴림", 10F);
@@ -158,6 +140,42 @@
             this.portBox.Name = "portBox";
             this.portBox.Size = new System.Drawing.Size(453, 34);
             this.portBox.TabIndex = 1;
+            // 
+            // ipBox
+            // 
+            this.ipBox.Location = new System.Drawing.Point(320, 3);
+            this.ipBox.Name = "ipBox";
+            this.ipBox.Size = new System.Drawing.Size(453, 32);
+            this.ipBox.TabIndex = 1;
+            // 
+            // reConnUpDown
+            // 
+            this.reConnUpDown.Font = new System.Drawing.Font("굴림", 10F);
+            this.reConnUpDown.Location = new System.Drawing.Point(320, 198);
+            this.reConnUpDown.Name = "reConnUpDown";
+            this.reConnUpDown.Size = new System.Drawing.Size(453, 34);
+            this.reConnUpDown.TabIndex = 2;
+            this.reConnUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // timeOutUpDown
+            // 
+            this.timeOutUpDown.Font = new System.Drawing.Font("굴림", 10F);
+            this.timeOutUpDown.Location = new System.Drawing.Point(320, 133);
+            this.timeOutUpDown.Name = "timeOutUpDown";
+            this.timeOutUpDown.Size = new System.Drawing.Size(453, 34);
+            this.timeOutUpDown.TabIndex = 2;
+            this.timeOutUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // tcpConn
+            // 
+            this.tcpConn.Font = new System.Drawing.Font("굴림", 10F);
+            this.tcpConn.Location = new System.Drawing.Point(442, 24);
+            this.tcpConn.Name = "tcpConn";
+            this.tcpConn.Size = new System.Drawing.Size(178, 78);
+            this.tcpConn.TabIndex = 1;
+            this.tcpConn.Text = "Connect";
+            this.tcpConn.UseVisualStyleBackColor = true;
+            this.tcpConn.Click += new System.EventHandler(this.tcpConn_Click);
             // 
             // sendBtn
             // 
@@ -168,7 +186,7 @@
             this.sendBtn.TabIndex = 1;
             this.sendBtn.Text = "Send";
             this.sendBtn.UseVisualStyleBackColor = true;
-            this.sendBtn.Click += new System.EventHandler(this.tcpConn_Click);
+            this.sendBtn.Click += new System.EventHandler(this.sendBtn_Click);
             // 
             // serBtn
             // 
@@ -225,6 +243,16 @@
             this.panel1.Size = new System.Drawing.Size(642, 116);
             this.panel1.TabIndex = 5;
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("굴림", 10F);
+            this.label7.Location = new System.Drawing.Point(18, 7);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(130, 24);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "TCP Option";
+            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.BurlyWood;
@@ -235,16 +263,6 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(642, 118);
             this.panel2.TabIndex = 6;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("굴림", 10F);
-            this.label7.Location = new System.Drawing.Point(18, 7);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(130, 24);
-            this.label7.TabIndex = 4;
-            this.label7.Text = "TCP Option";
             // 
             // label8
             // 
@@ -266,24 +284,6 @@
             this.label9.TabIndex = 4;
             this.label9.Text = "Log";
             // 
-            // timeOutUpDown
-            // 
-            this.timeOutUpDown.Font = new System.Drawing.Font("굴림", 10F);
-            this.timeOutUpDown.Location = new System.Drawing.Point(320, 133);
-            this.timeOutUpDown.Name = "timeOutUpDown";
-            this.timeOutUpDown.Size = new System.Drawing.Size(453, 34);
-            this.timeOutUpDown.TabIndex = 2;
-            this.timeOutUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // reConnUpDown
-            // 
-            this.reConnUpDown.Font = new System.Drawing.Font("굴림", 10F);
-            this.reConnUpDown.Location = new System.Drawing.Point(320, 198);
-            this.reConnUpDown.Name = "reConnUpDown";
-            this.reConnUpDown.Size = new System.Drawing.Size(453, 34);
-            this.reConnUpDown.TabIndex = 2;
-            this.reConnUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
             // TcpForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
@@ -299,12 +299,12 @@
             this.Text = "TcpForm";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.reConnUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeOutUpDown)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timeOutUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.reConnUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

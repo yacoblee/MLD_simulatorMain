@@ -10,9 +10,9 @@ namespace test
 {
     public class TcpConnect
     {
-        // 통신 알맹이들을 외부에서 읽을 수만 있게 속성(Property)으로 선언
         public TcpListener ServerListener { get; private set; }
         public TcpClient Client { get; private set; }
+        public TcpClient ServerClient { get; private set; }
         public bool IsServerRunning { get; private set; } = false;
         public bool IsClientRunning { get; private set; } = false;
 
@@ -32,10 +32,9 @@ namespace test
 
                 while (IsServerRunning)
                 {
-                    TcpClient connectedClient = await ServerListener.AcceptTcpClientAsync();
-                    OnLogMessage?.Invoke($"클라이언트({connectedClient.Client.RemoteEndPoint})가 접속했습니다!\r\n");
+                    ServerClient = await ServerListener.AcceptTcpClientAsync();
+                    OnLogMessage?.Invoke($"클라이언트({ServerClient.Client.RemoteEndPoint})가 접속했습니다!\r\n");
 
-                    // TODO: 접속된 클라이언트와 통신하는 수신 루프 연결
                 }
             }
             catch (Exception ex)
@@ -61,8 +60,6 @@ namespace test
                     {
                         OnLogMessage?.Invoke("서버와 연결되었습니다!\r\n");
 
-                        
-                        // await ReceiveDataLoopAsync(); 
                         break;
                     }
                     else
@@ -102,5 +99,41 @@ namespace test
                 OnLogMessage?.Invoke($"종료 중 에러 발생: {ex.Message}\r\n");
             }
         }
+
+        public async Task SendDataAsync(string message, Encoding encoding)
+        {
+            try
+            {
+                byte[] data = encoding.GetBytes(message);
+                NetworkStream stream = null;
+
+                if (IsClientRunning)
+                {
+                    stream = Client.GetStream();
+
+                }
+                else if(IsServerRunning)
+                {
+                    stream = ServerClient.GetStream();
+                } else 
+                {
+                    OnLogMessage?.Invoke("데이터 전송 실패: 클라이언트가 연결되어 있지 않습니다.\r\n");
+                }
+
+                if (stream != null)
+                {
+                    await stream.WriteAsync(data, 0, data.Length);
+                    OnLogMessage?.Invoke($" 전송: {message}\r\n");
+                } else {
+                    OnLogMessage?.Invoke("연결된 대상이 없어 데이터를 보낼 수 없습니다.\r\n");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                OnLogMessage?.Invoke($"데이터 전송 중 에러 발생: {ex.Message}\r\n");
+            }
+        }
+
     }
 }
