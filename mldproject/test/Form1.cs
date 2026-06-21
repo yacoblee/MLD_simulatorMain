@@ -195,7 +195,7 @@ namespace test
                 //TxtLog.Text += $"[수신] {text}\r\n";
 
             }
-          
+
         }
 
         private void Buttonwho_Click(object sender, EventArgs e)
