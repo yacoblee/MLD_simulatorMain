@@ -173,7 +173,7 @@ namespace test
                 if (text.Contains("SYNC"))
                 {
                     while (_rxBuffer.Contains("\n")) { 
-                            int index = _rxBuffer.IndexOf("\n");
+                        int index = _rxBuffer.IndexOf("\n");
                         string msg = _rxBuffer.Substring(0, index); 
                         _rxBuffer = _rxBuffer.Substring(index + 1); 
                         msg = msg.Replace("\r", "").Replace("\n", "").Replace("\u0002", "");

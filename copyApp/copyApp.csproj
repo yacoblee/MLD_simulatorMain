@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comm\TcpComm.cs" />
     <Compile Include="Conf\ProtocolFIle.cs" />
     <Compile Include="Conf\SerialComm.cs" />
     <Compile Include="Model\MainModel.cs" />

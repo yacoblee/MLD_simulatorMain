@@ -19,11 +19,14 @@ namespace copyApp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-
             ProtocolFIle config = ProtocolFIle.Load();
             MainModel model = new MainModel(config);
-            MainView view = new MainView(model);
-            Application.Run(view);
+
+            Application.Run(new MainView(model));
+
+
+
+            SerialComm.Instance.Dispose();
         }
     }
 }

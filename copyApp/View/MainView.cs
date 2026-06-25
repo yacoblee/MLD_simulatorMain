@@ -1,12 +1,7 @@
 using copyApp.Model;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
-using System.Linq;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Windows.Forms;
 
 namespace copyApp
@@ -106,18 +101,18 @@ namespace copyApp
 
         private void connBtn_Click(object sender, EventArgs e)
         {
-
-            if(con)
-            {
-                _model.Disconnect();
-                connBtn.Text = "연결";
-            }
-            else
-            {
-                con= _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
-                connBtn.Text = "연결해제";
-            }
-
+            var ok = _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
+            connBtn.Text = ok ? "연결해제" : "연결";
         }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            _model.Detach();
+            base.OnFormClosed(e);
+        }
+
+
+
+
     }
 }

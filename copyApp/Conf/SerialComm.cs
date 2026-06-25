@@ -11,55 +11,96 @@ namespace copyApp.Conf
     /// </summary>
     public class SerialComm : IDisposable
     {
-        private readonly SerialPort _serial = new SerialPort();
-        private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
+        public static SerialComm Instance { get; } = new SerialComm(); 
 
-        // 프레이밍: STX + payload + CR LF (sendProject 규약)
+        private SerialPort _serial = new SerialPort();
+        private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
         private const byte STX = 0x02;
 
-        public event EventHandler<string> DataReceived;   // 수신 raw 데이터 broadcast
+        public event EventHandler<string> DataReceived;
         public event EventHandler<string> LogOccurred;
         public event EventHandler Connected;
-
         public bool IsOpen => _serial.IsOpen;
 
-        public SerialComm()
+        private SerialComm()
         {
             _serial.DataReceived += OnSerialDataReceived;
         }
 
-        // 설정 + 오픈 + 실제 연결 확인
+
+        private void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            try
+            {
+                string text = _serial.ReadExisting();
+                _rxSignal.Set();
+                DataReceived?.Invoke(this, text);   // 모든 구독자에게 broadcast
+            }
+            catch (Exception ex) { OnLogOccurred($"수신 오류: {ex.Message}"); }
+        }
+
         public bool Connect(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
         {
-            throw new NotImplementedException();
+           
+            try
+            {
+                if (_serial.IsOpen) _serial.Close();
+                _serial.PortName = portName;
+                _serial.BaudRate = baudRate;
+                _serial.Parity = parity;
+                _serial.DataBits = dataBits;
+                _serial.StopBits = stopBits;
+                _serial.Open();
+
+                if (_serial.IsOpen)
+                {
+                    Connected?.Invoke(this, EventArgs.Empty);
+                    return true;
+                }
+                else
+                {   
+                    OnLogOccurred("포트 열기 실패");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogOccurred?.Invoke(this, $"연결 오류: {ex.Message}");
+                return false;
+            }
+           
         }
 
         public void Disconnect()
         {
-            throw new NotImplementedException();
-        }
+            if (_serial.IsOpen) { 
+                _serial.Close(); 
+                OnLogOccurred("포트 닫힘");
+            }
+        }   
 
-        // STX + payload + CR LF 로 프레이밍하여 전송
         public void SendFramed(string payload)
         {
-            throw new NotImplementedException();
+            if (!_serial.IsOpen) return;
+            byte[] body = Encoding.ASCII.GetBytes(payload);
+            byte[] framed = new byte[body.Length + 3];
+            framed[0] = STX;
+            Array.Copy(body, 0, framed, 1, body.Length);
+            framed[framed.Length - 2] = 0x0D; // CR
+            framed[framed.Length - 1] = 0x0A; // LF 
+            _serial.Write(framed, 0, framed.Length);
         }
 
-        // probe 전송 후 timeoutMs 내 응답 도착 여부
-        public bool VerifyConnection(int timeoutMs = 1000)
+        public bool VerifyConnection(int timeoutMs = 1000)  
         {
-            throw new NotImplementedException();
+            if (!_serial.IsOpen) return false;
+            _rxSignal.Reset();
+            SendFramed("01SYNC");
+            return _rxSignal.Wait(timeoutMs);
         }
 
-        private void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void OnLogOccurred(string message)
-        {
-            LogOccurred?.Invoke(this, message);
-        }
+        private void OnLogOccurred(string message) => LogOccurred?.Invoke(this, message);   
+ 
 
         public void Dispose()
         {
