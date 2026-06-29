@@ -1,4 +1,5 @@
-﻿using copyApp.Conf;
+﻿using copyApp.Comm;
+using copyApp.Conf;
 using copyApp.Model;
 using System;
 using System.Collections.Generic;
@@ -21,11 +22,12 @@ namespace copyApp
 
             ProtocolFIle config = ProtocolFIle.Load();
             MainModel model = new MainModel(config);
+            TcpModel tcpModel = new TcpModel();
 
-            Application.Run(new MainView(model));
+            Application.Run(new MainView(model, tcpModel));
 
 
-
+            TcpComm.Instance.Dispose();
             SerialComm.Instance.Dispose();
         }
     }

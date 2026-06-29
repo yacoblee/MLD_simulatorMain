@@ -1,4 +1,5 @@
 using copyApp.Model;
+using copyApp.View;
 using System;
 using System.ComponentModel;
 using System.IO.Ports;
@@ -10,6 +11,7 @@ namespace copyApp
     {
 
         private MainModel _model;
+        private TcpModel _tcpModel;
 
         private readonly BindingList<int> _speeds =
             new BindingList<int> { 4800, 9600, 19200, 38400, 57600, 76800, 115200 };
@@ -27,18 +29,24 @@ namespace copyApp
         public string SelectedProtocol => cmbProtocol.SelectedItem as string;
         public string SelectedPort => cmbPortName.SelectedItem as string;
 
-        private Boolean con = false;
 
 
-        public MainView(MainModel model)
+        public MainView(MainModel model, TcpModel tcpModel)
         {
             _model = model;
+            _tcpModel = tcpModel;
+
             _model.LogOccurred += _model_LogOccurred;
             _model.DataReceived += (s, data) => WriteLog($"[수신] {data}");
 
+
+            _tcpModel.LogOccurred += _model_LogOccurred;
+            _tcpModel.DataReceived += (s, data) => WriteLog($"[TCP 수신] {data}");
+
+
             InitializeComponent();
             BindControls();
-            RestoreFromConfig();        // 저장된 설정을 콤보박스에 복원
+            RestoreFromConfig();
         }
 
 
@@ -53,18 +61,23 @@ namespace copyApp
 
             foreach (var p in SerialPort.GetPortNames()) _ports.Add(p);
             cmbPortName.DataSource = _ports;
+
+            serialBtn.CheckedChanged += Connected_RadioBtn;
+            tcpBtn.CheckedChanged += Connected_RadioBtn;
+
+            UpdateMainUI();
         }
 
 
         private void RestoreFromConfig()
         {
             var c = _model.Config;
-            cmbSpeed.SelectedIndex    = c.BaudRateIndex;   // 저장: _speeds.IndexOf(...)
-            cmbBit.SelectedIndex      = c.ParityIndex;     // 저장: _parity.IndexOf(...)
-            cmbLength.SelectedIndex   = c.BitIndex;        // 저장: _dataBits.IndexOf(...)
-            cmbStopBit.SelectedIndex  = c.StopBitsIndex;   // 저장: _stopBits.IndexOf(...)
-            cmbProtocol.SelectedIndex = c.ProtocolIndex;   // 저장: _protocols.IndexOf(...)
-            if (_ports.Contains(c.PortName))               // 포트는 문자열로 저장
+            cmbSpeed.SelectedIndex    = c.BaudRateIndex;    
+            cmbBit.SelectedIndex      = c.ParityIndex;     
+            cmbLength.SelectedIndex   = c.BitIndex;         
+            cmbStopBit.SelectedIndex  = c.StopBitsIndex;    
+            cmbProtocol.SelectedIndex = c.ProtocolIndex;  
+            if (_ports.Contains(c.PortName))     
                 cmbPortName.SelectedItem = c.PortName;
         }
 
@@ -105,14 +118,72 @@ namespace copyApp
             connBtn.Text = ok ? "연결해제" : "연결";
         }
 
+
+        private void tcpConnBtn_Click(object sender, EventArgs e)
+        {
+
+            if (pasiveRadio.Checked) // 장비 역할
+            {
+                if (!_tcpModel.IsConnected)
+                    _tcpModel.Connect(ipTxt.Text, int.Parse(portTxt.Text), int.Parse(timeTxt.Text), int.Parse(retryTxt.Text));
+                else
+                    _tcpModel.Disconnect();
+
+            } else if (activeRadio.Checked) {
+
+                if (!_tcpModel.ServerConnected)
+                    _tcpModel.ServerConn(ipTxt.Text, int.Parse(portTxt.Text));
+                else
+                    _tcpModel.Disconnect();
+            }
+
+
+            tcpConBtn.Text = (_tcpModel.IsConnected || _tcpModel.ServerConnected) ? "연결해제" : "연결";
+        }
+
+
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             _model.Detach();
+            _tcpModel.Detach();
             base.OnFormClosed(e);
         }
 
 
 
+        private void Connected_RadioBtn(Object sender, EventArgs e)
+        {
+            if(sender is RadioButton rb && rb.Checked)
+            {
+                UpdateMainUI();
+            }
+        }
 
+
+        private void UpdateMainUI()
+        {
+            bool isTcp = tcpBtn.Checked;
+
+
+            if (isTcp)
+            {
+                tcpPanel.Show();
+                serialPanel.Hide();
+            }
+            else
+            {
+                tcpPanel.Hide();
+                serialPanel.Show();
+            }
+        }
+
+        private void barBtn_Click(object sender, EventArgs e)
+        {
+            using (codePopup popup = new codePopup())
+            {
+                if (popup.ShowDialog() == DialogResult.OK)
+                    barTxt.Text = popup.Code;
+            }
+        }
     }
 }

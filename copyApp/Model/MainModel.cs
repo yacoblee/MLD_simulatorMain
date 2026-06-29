@@ -97,7 +97,7 @@ namespace copyApp.Model
 
         public void Disconnect()
         {
-            SerialComm.Instance.Disconnect();                     // ★ 위임
+            SerialComm.Instance.Disconnect();
             IsConnected = false;
         }
 
