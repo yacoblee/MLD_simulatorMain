@@ -109,7 +109,7 @@ namespace sendProject.common
             try { _listener?.Stop(); } catch { }
             try { _stream?.Close(); } catch { }
             try { _client?.Close(); } catch { }
-            _serverThread?.Join();       
+            _serverThread?.Join(300);       
             _listener = null;
             _serverThread = null;
         }
