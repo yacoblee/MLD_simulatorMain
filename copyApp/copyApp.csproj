@@ -46,9 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Comm\TcpComm.cs" />
+    <Compile Include="Conf\TcpComm.cs" />
     <Compile Include="Conf\ProtocolFIle.cs" />
     <Compile Include="Conf\SerialComm.cs" />
+    <Compile Include="Model\TcpModel.cs" />
     <Compile Include="Model\MainModel.cs" />
     <Compile Include="View\MainView.cs">
       <SubType>Form</SubType>
@@ -92,6 +93,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Comm\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

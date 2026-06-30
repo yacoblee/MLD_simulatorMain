@@ -1,4 +1,5 @@
-﻿using System;
+﻿using sendProject.common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace sendProject
 {
@@ -17,8 +19,11 @@ namespace sendProject
         private Man _man;
         private SerialPort _serial;
 
+
         private byte[] _parameter;
         private byte _addr;
+
+
 
         public Form1(Man man)
         {
@@ -44,8 +49,19 @@ namespace sendProject
             _serial.ReadTimeout = 1000;
             _serial.WriteTimeout = 1000;
 
-        }
+            TcpConfig.Instance.OnLogPrint += _model_LogOccurred;
 
+        }
+        private void _model_LogOccurred(object sender, string log)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => { txtBox.AppendText($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]: {log}\r\n"); }));
+                return;
+            }
+            if (IsDisposed) { return; }
+            
+        }
         private void _serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
 
@@ -275,14 +291,13 @@ namespace sendProject
                 if (_serial.IsOpen)
                 {
                     _serial.Close();
-                    conBtn.Text = "Connect";
                 }
                 else
                 {
-                    _serial.PortName = portList.Text;
-                    conBtn.Text = "DisConnect";
                     _serial.Open();
+                    _serial.PortName = portList.Text;
                 }
+                conBtn.Text = _serial.IsOpen ? "DisConnect" : "Connect";
             }
             catch(Exception ex)
             {
@@ -302,6 +317,24 @@ namespace sendProject
         private void portList_KeyDown(object sender, KeyEventArgs e)
         {
             e.SuppressKeyPress = true;
+        }
+
+        private void tcpBtn_Click(object sender, EventArgs e)
+        {
+
+            if (TcpConfig.Instance.IsServerRunning)
+            {
+                TcpConfig.Instance.TcpDisconnect();
+                
+            }
+            else
+            {
+                TcpConfig.Instance.ServerConnect(ipTxt.Text, int.Parse(portTxt.Text) );
+
+            }
+
+            tcpBtn.Text = TcpConfig.Instance.IsServerRunning ? "서버 중지" : "연결";
+
         }
     }
 

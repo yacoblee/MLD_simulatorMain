@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace copyApp.Comm
 {
@@ -108,14 +109,16 @@ namespace copyApp.Comm
             }
         }
 
-        public bool Connect(string ip, int port)
+        public async Task<bool> Connect(string ip, int port)
         {
             try
             {
                 Disconnect();
-                _client = new TcpClient();
-                _client.Connect(ip, port);
-                _stream = _client.GetStream();
+                TcpClient localClient = new TcpClient();
+
+                await localClient.ConnectAsync(ip, port);
+
+                _stream = localClient.GetStream();
 
                 _running = true;
                 _rxThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "TCP-RX" };

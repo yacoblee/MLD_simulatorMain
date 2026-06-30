@@ -3,6 +3,7 @@ using copyApp.View;
 using System;
 using System.ComponentModel;
 using System.IO.Ports;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace copyApp
@@ -29,7 +30,8 @@ namespace copyApp
         public string SelectedProtocol => cmbProtocol.SelectedItem as string;
         public string SelectedPort => cmbPortName.SelectedItem as string;
 
-
+        private int timeValue = 0;
+        private int retryValue = 0;
 
         public MainView(MainModel model, TcpModel tcpModel)
         {
@@ -119,22 +121,39 @@ namespace copyApp
         }
 
 
-        private void tcpConnBtn_Click(object sender, EventArgs e)
+       
+        private async void TcpConnBtn_Click(object sender, EventArgs e)
         {
-
             if (pasiveRadio.Checked) // 장비 역할
             {
                 if (!_tcpModel.IsConnected)
-                    _tcpModel.Connect(ipTxt.Text, int.Parse(portTxt.Text), int.Parse(timeTxt.Text), int.Parse(retryTxt.Text));
+                {
+                    if (!int.TryParse(timeTxt.Text, out timeValue) || !int.TryParse(retryTxt.Text, out retryValue))
+                    {
+                        MessageBox.Show("시간과 재시도 횟수는 올바른 숫자 형식이어야 합니다.", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return ;
+                    }
+
+                    if (timeValue <= 0 || retryValue < 0)
+                    {
+                        MessageBox.Show("시간은 0보다 커야 하며, 재시도 횟수는 0 이상이어야 합니다.", "입력 범위 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return ;
+                    }
+
+                    await _tcpModel.Connect(ipTxt.Text, int.Parse(portTxt.Text),  timeValue, retryValue);
+                }
                 else
+                {
                     _tcpModel.Disconnect();
+                }
 
             } else if (activeRadio.Checked) {
 
-                if (!_tcpModel.ServerConnected)
+                if (!_tcpModel.ServerConnected) {
                     _tcpModel.ServerConn(ipTxt.Text, int.Parse(portTxt.Text));
-                else
+                } else { 
                     _tcpModel.Disconnect();
+                }
             }
 
 

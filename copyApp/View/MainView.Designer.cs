@@ -369,7 +369,7 @@
             this.tcpConBtn.TabIndex = 5;
             this.tcpConBtn.Text = "연결";
             this.tcpConBtn.UseVisualStyleBackColor = true;
-            this.tcpConBtn.Click += new System.EventHandler(this.tcpConnBtn_Click);
+            this.tcpConBtn.Click += new System.EventHandler(this.TcpConnBtn_Click);
             // 
             // label9
             // 

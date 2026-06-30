@@ -1,4 +1,5 @@
-﻿using System;
+﻿using sendProject.common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace sendProject
             Man man = new Man(cfg);
 
             Application.Run(new Form1(man));
+
+            TcpConfig.Instance.Dispose();
         }
     }
 }

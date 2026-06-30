@@ -52,7 +52,7 @@ namespace copyApp.Model
 
             if (ServerConnected)
             {
-                OnLogOccurred($"Connected to {ipAddress}:{port}");
+                OnLogOccurred($"Connected to {ipAddress}:{port} Success ");
                 StopRetryTimer(); // 연결 성공 시 타이머 정리
             }
             OnLogOccurred($"Connected to {ipAddress}:{port}");
@@ -61,7 +61,7 @@ namespace copyApp.Model
         }
 
 
-        public void Connect(string ipAddress, int port, int timeOutCnt, int retryCnt)
+        public async Task Connect(string ipAddress, int port, int timeOutCnt, int retryCnt)
         {
             _targetIp = ipAddress;
             _targetPort = port;
@@ -71,7 +71,7 @@ namespace copyApp.Model
 
             try
             {
-                IsConnected = TcpComm.Instance.Connect(ipAddress, port);
+                IsConnected = await TcpComm.Instance.Connect(ipAddress, port);
 
                 if (IsConnected)
                 {
@@ -80,7 +80,6 @@ namespace copyApp.Model
                 }
                 else
                 {
-                    // 연결 결과가 false인 경우 재시도 루틴 가동
                     StartRetryTimer(timeOutCnt);
                 }
 
@@ -127,6 +126,7 @@ namespace copyApp.Model
         public void Detach()
         {
             IsConnected = false;
+            ServerConnected = false;
             TcpComm.Instance.DataReceived -= OnData;
         }
 
@@ -134,7 +134,7 @@ namespace copyApp.Model
 
         private void StartRetryTimer(int intervalMs)
         {
-            // 이미 지정된 횟수만큼 재시도했다면 타이머를 돌리지 않고 종료
+
             if (_currentRetryCount >= _maxRetryCount)
             {
                 OnLogOccurred($"[Retry] 최대 재시도 횟수({_maxRetryCount}회)를 초과하여 연결을 포기합니다.");
@@ -144,7 +144,7 @@ namespace copyApp.Model
             if (_retryTimer == null)
             {
                 _retryTimer = new System.Timers.Timer();
-                _retryTimer.Elapsed += OnRetryTimerElapsed; // 타이머 이벤트 연결
+                _retryTimer.Elapsed +=  OnRetryTimerElapsed; // 타이머 이벤트 연결
             }
 
             _retryTimer.Interval = intervalMs; // 넘겨받은 주기 설정 (밀리초 단위)
@@ -165,12 +165,12 @@ namespace copyApp.Model
             }
             _currentRetryCount = 0;
         }
-        private void OnRetryTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private async void OnRetryTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             try
             {
                 OnLogOccurred($"[Retry] 재연결 시도 중... ({_targetIp}:{_targetPort})");
-                IsConnected = TcpComm.Instance.Connect(_targetIp, _targetPort);
+                IsConnected = await TcpComm.Instance.Connect(_targetIp, _targetPort);
 
                 if (IsConnected)
                 {
