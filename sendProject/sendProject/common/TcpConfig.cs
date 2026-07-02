@@ -24,7 +24,7 @@ namespace sendProject.common
         public event EventHandler Connected;
         public event EventHandler DisconnectedEvent;
         public event EventHandler<string> OnLogPrint;
-
+        public event EventHandler<string> DataReceived;
         private NetworkStream _stream;
 
         private Thread _rxThread;
@@ -86,8 +86,6 @@ namespace sendProject.common
                     _serverRunning = true;
 
 
-
-
                     Connected?.Invoke(this, EventArgs.Empty);
                     LogPrint($"client connected: {tcpClient.Client.RemoteEndPoint}");
 
@@ -98,7 +96,22 @@ namespace sendProject.common
             }
         }
 
- 
+        public void ReadBuffer()
+        {
+            if (_stream == null || !_stream.CanRead)
+                return;
+            byte[] buffer = new byte[2048];
+            int bytesRead = _stream.Read(buffer, 0, buffer.Length);
+            if (bytesRead > 0)
+            {
+                string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                DataReceived?.Invoke(this, receivedData);
+                LogPrint($"Received data: {receivedData}");
+            }
+        }
+
+
 
 
         private void LogPrint(string msg) => OnLogPrint?.Invoke(this, msg);

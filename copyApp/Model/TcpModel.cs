@@ -190,6 +190,18 @@ namespace copyApp.Model
             }
         }
 
+        public void Send(string message)
+        {
+            if (IsConnected || ServerConnected)
+            {
+                TcpComm.Instance.SendFramed(message);
+                OnLogOccurred($"[송신 데이터] {message}");
+            }
+            else
+            {
+                OnLogOccurred("연결되지 않은 상태에서 데이터를 전송하려고 시도했습니다.");
+            }
 
-    }
+
+        }
 }

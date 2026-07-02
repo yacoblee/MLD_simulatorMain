@@ -205,6 +205,7 @@
             this.tcpSend.TabIndex = 10;
             this.tcpSend.Text = "전송";
             this.tcpSend.UseVisualStyleBackColor = true;
+            this.tcpSend.Click += new System.EventHandler(this.tcpSend_Click);
             // 
             // serialBtn
             // 
@@ -223,7 +224,7 @@
             this.tcpBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tcpBtn.Location = new System.Drawing.Point(73, 46);
             this.tcpBtn.Name = "tcpBtn";
-            this.tcpBtn.Size = new System.Drawing.Size(69, 25);
+            this.tcpBtn.Size = new System.Drawing.Size(62, 25);
             this.tcpBtn.TabIndex = 9;
             this.tcpBtn.TabStop = true;
             this.tcpBtn.Text = "Tcp";
@@ -289,7 +290,7 @@
             this.pasiveRadio.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pasiveRadio.Location = new System.Drawing.Point(115, 702);
             this.pasiveRadio.Name = "pasiveRadio";
-            this.pasiveRadio.Size = new System.Drawing.Size(100, 25);
+            this.pasiveRadio.Size = new System.Drawing.Size(93, 25);
             this.pasiveRadio.TabIndex = 12;
             this.pasiveRadio.TabStop = true;
             this.pasiveRadio.Text = "passive";
@@ -301,7 +302,7 @@
             this.activeRadio.Cursor = System.Windows.Forms.Cursors.Hand;
             this.activeRadio.Location = new System.Drawing.Point(12, 702);
             this.activeRadio.Name = "activeRadio";
-            this.activeRadio.Size = new System.Drawing.Size(86, 25);
+            this.activeRadio.Size = new System.Drawing.Size(79, 25);
             this.activeRadio.TabIndex = 12;
             this.activeRadio.Text = "active";
             this.activeRadio.UseVisualStyleBackColor = true;
@@ -402,7 +403,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1774, 1023);
+            this.ClientSize = new System.Drawing.Size(1488, 1023);
             this.Controls.Add(this.tcpPanel);
             this.Controls.Add(this.serialPanel);
             this.Controls.Add(this.tcpBtn);

@@ -204,5 +204,10 @@ namespace copyApp
                     barTxt.Text = popup.Code;
             }
         }
+
+        private void tcpSend_Click(object sender, EventArgs e)
+        {
+            _tcpModel.Send(textLog.Text); 
+        }
     }
 }
