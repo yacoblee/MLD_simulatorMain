@@ -88,28 +88,61 @@ namespace sendProject.common
 
                     Connected?.Invoke(this, EventArgs.Empty);
                     LogPrint($"client connected: {tcpClient.Client.RemoteEndPoint}");
+                    _rxThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "Server-RX" };
+                    _rxThread.Start();
 
                 }
-            }catch { 
+            }
+            catch { 
             
             
             }
         }
 
-        public void ReadBuffer()
+        private void ReceiveLoop()
         {
-            if (_stream == null || !_stream.CanRead)
-                return;
             byte[] buffer = new byte[2048];
-            int bytesRead = _stream.Read(buffer, 0, buffer.Length);
-            if (bytesRead > 0)
-            {
-                string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            var sb = new StringBuilder();          // 프레임 조립용 (STX~ETX 사이 누적)
 
-                DataReceived?.Invoke(this, receivedData);
-                LogPrint($"Received data: {receivedData}");
+            try
+            {
+                while (_serverRunning && _stream != null)
+                {
+                    int bytesRead = _stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead <= 0) break;      // 상대가 연결 종료
+
+                    for (int i = 0; i < bytesRead; i++)
+                    {
+                        byte b = buffer[i];
+
+                        if (b == 0x02)              // STX → 새 프레임 시작
+                        {
+                            sb.Clear();
+                        }
+                        else if (b == 0x03)         // ETX → 프레임 완성
+                        {
+                            string payload = sb.ToString();
+                            DataReceived?.Invoke(this, payload);   // 완성된 데이터 전달
+                            LogPrint($"수신: {payload}");
+                            sb.Clear();
+                        }
+                        else
+                        {
+                            sb.Append((char)b);     // 본문 바이트 누적 (ASCII)
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_serverRunning) LogPrint($"수신 오류: {ex.Message}");
+            }
+            finally
+            {
+                DisconnectedEvent?.Invoke(this, EventArgs.Empty);  // 끊김 알림
             }
         }
+
 
 
 

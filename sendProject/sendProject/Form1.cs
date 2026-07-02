@@ -51,6 +51,8 @@ namespace sendProject
 
             TcpConfig.Instance.OnLogPrint += _model_LogOccurred;
 
+            TcpConfig.Instance.DataReceived += OnTcpDataReceived;
+
         }
         private void _model_LogOccurred(object sender, string log)
         {
@@ -336,7 +338,37 @@ namespace sendProject
             tcpBtn.Text = TcpConfig.Instance.IsServerRunning ? "서버 중지" : "연결";
 
         }
+
+
+
+
+        private void OnTcpDataReceived(object sender, string data)
+        {
+            if (InvokeRequired) 
+            {
+                Invoke(new Action(() => OnTcpDataReceived(sender, data)));
+                return;
+            }
+            if (IsDisposed) return;
+
+            txtBox.AppendText($"[수신] {data}\r\n");
+        }
+
+
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            TcpConfig.Instance.DataReceived -= OnTcpDataReceived;   // 누수/예외 방지
+            base.OnFormClosed(e);
+        }
+
+
     }
+
+
+
+
+
 
     public class Param
     {
