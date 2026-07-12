@@ -32,7 +32,12 @@ namespace copyApp.Conf
         {
             try
             {
-                string text = _serial.ReadExisting();
+                int len = _serial.BytesToRead;
+                byte[] data = new byte[len];
+                _serial.Read(data, 0, len);
+                
+                string text = Encoding.ASCII.GetString(data);
+                
                 _rxSignal.Set();
                 DataReceived?.Invoke(this, text);   // 모든 구독자에게 broadcast
             }
@@ -97,6 +102,13 @@ namespace copyApp.Conf
             _rxSignal.Reset();
             SendFramed("01SYNC");
             return _rxSignal.Wait(timeoutMs);
+        }
+
+        public void CheckTemp()
+        {
+            if (!_serial.IsOpen) return;
+            _rxSignal.Reset();
+            SendFramed("01TEMP");
         }
 
         private void OnLogOccurred(string message) => LogOccurred?.Invoke(this, message);   

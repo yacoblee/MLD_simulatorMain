@@ -40,7 +40,7 @@ namespace copyApp
 
             _model.LogOccurred += _model_LogOccurred;
             _model.DataReceived += (s, data) => WriteLog($"[수신] {data}");
-
+            _model.TempReceived += (s, temps) => SetPvRow(temps);
 
             _tcpModel.LogOccurred += _model_LogOccurred;
             _tcpModel.DataReceived += (s, data) => WriteLog($"[TCP 수신] {data}");
@@ -67,7 +67,55 @@ namespace copyApp
             serialBtn.CheckedChanged += Connected_RadioBtn;
             tcpBtn.CheckedChanged += Connected_RadioBtn;
 
+            SetupTempGrid();
             UpdateMainUI();
+        }
+
+        private void SetupTempGrid()
+        {
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.RowHeadersVisible = true;
+
+            dataGridView1.Rows.Clear();
+            dataGridView1.Rows.Add();   // 0행: PV
+            dataGridView1.Rows.Add();   // 1행: SV
+
+            dataGridView1.Rows[0].HeaderCell.Value = "now Temp";
+            dataGridView1.Rows[1].HeaderCell.Value = "set Temp";
+
+            dataGridView1.Rows[0].ReadOnly = true;    // PV는 표시만
+            dataGridView1.Rows[1].ReadOnly = false;   // SV는 입력 가능
+
+            for (int c = 0; c < dataGridView1.Columns.Count; c++)
+            {
+                dataGridView1.Rows[0].Cells[c].Value = "-";   // PV 초기값
+                dataGridView1.Rows[1].Cells[c].Value = "0";   // SV 초기값
+            }
+        }
+
+        // 시리얼 수신 현재값 4개를 PV행에 세팅 (백그라운드 스레드 → 마샬링)
+        public void SetPvRow(int[] temps)
+        {
+            if (dataGridView1.InvokeRequired)
+            {
+                dataGridView1.Invoke(new Action(() => SetPvRow(temps)));
+                return;
+            }
+            if (IsDisposed) return;
+
+            int n = Math.Min(temps.Length, dataGridView1.Columns.Count);
+            for (int c = 0; c < n; c++)
+                dataGridView1.Rows[0].Cells[c].Value = temps[c].ToString("0");
+        }
+
+        // SV행 입력값 읽기 (전송/레시피 저장용)
+        public double[] GetSvValues()
+        {
+            var sv = new double[dataGridView1.Columns.Count];
+            for (int c = 0; c < sv.Length; c++)
+                double.TryParse(dataGridView1.Rows[1].Cells[c].Value?.ToString(), out sv[c]);
+            return sv;
         }
 
 
@@ -116,8 +164,20 @@ namespace copyApp
 
         private void connBtn_Click(object sender, EventArgs e)
         {
-            var ok = _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
-            connBtn.Text = ok ? "연결해제" : "연결";
+            //var ok = _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
+            //connBtn.Text = ok ? "연결해제" : "연결";
+        }
+
+        private async Task<bool> PreviousConn () 
+        {
+ 
+            if(! _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol)) 
+            { MessageBox.Show("온도값 수신 실패"); return false; }
+
+            int [] temps = await _model.WaitFirstTempAsync(3000);
+            if (temps == null) { MessageBox.Show("온도값 수신 실패(타임아웃)"); return false; }
+
+            return true;
         }
 
 
@@ -126,6 +186,11 @@ namespace copyApp
         {
             if (pasiveRadio.Checked) // 장비 역할
             {
+
+                bool ok = await PreviousConn();
+
+                if (!ok) return;
+
                 if (!_tcpModel.IsConnected)
                 {
                     if (!int.TryParse(timeTxt.Text, out timeValue) || !int.TryParse(retryTxt.Text, out retryValue))
@@ -147,15 +212,7 @@ namespace copyApp
                     _tcpModel.Disconnect();
                 }
 
-            } else if (activeRadio.Checked) {
-
-                if (!_tcpModel.ServerConnected) {
-                    _tcpModel.ServerConn(ipTxt.Text, int.Parse(portTxt.Text));
-                } else { 
-                    _tcpModel.Disconnect();
-                }
             }
-
 
             tcpConBtn.Text = (_tcpModel.IsConnected || _tcpModel.ServerConnected) ? "연결해제" : "연결";
         }

@@ -99,6 +99,8 @@ namespace sendProject.common
             }
         }
 
+        
+
         private void ReceiveLoop()
         {
             byte[] buffer = new byte[2048];
@@ -145,7 +147,37 @@ namespace sendProject.common
 
 
 
+        public void SendData(string data, bool valid)
+        {
+            if (_stream != null && _stream.CanWrite)
+            {
+                byte[] payload = Encoding.ASCII.GetBytes(data);
+                byte[] framedData = null;
+                if(valid)
+                    framedData = new byte[payload.Length + 2];
+                else 
+                     framedData = new byte[payload.Length + 1];
 
+                framedData[0] = 0x02; // STX
+                Array.Copy(payload, 0, framedData, 1, payload.Length);
+                
+                if(valid)
+                    framedData[framedData.Length - 1] = 0x03; // ETX
+                try
+                {
+                    _stream.Write(framedData, 0, framedData.Length);
+                    LogPrint($"송신: {data}");
+                }
+                catch (Exception ex)
+                {
+                    LogPrint($"송신 오류: {ex.Message}");
+                }
+            }
+            else
+            {
+                LogPrint("송신 실패: 스트림이 유효하지 않음");
+            }
+        }
 
         private void LogPrint(string msg) => OnLogPrint?.Invoke(this, msg);
 

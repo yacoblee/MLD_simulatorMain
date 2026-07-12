@@ -62,8 +62,14 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.PV1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PV2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PV3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PV4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.serialPanel.SuspendLayout();
             this.tcpPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // cmbSpeed
@@ -100,11 +106,11 @@
             // 
             // textLog
             // 
-            this.textLog.Location = new System.Drawing.Point(473, 117);
+            this.textLog.Location = new System.Drawing.Point(426, 574);
             this.textLog.Multiline = true;
             this.textLog.Name = "textLog";
             this.textLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textLog.Size = new System.Drawing.Size(967, 604);
+            this.textLog.Size = new System.Drawing.Size(967, 374);
             this.textLog.TabIndex = 4;
             // 
             // saveBtn
@@ -224,7 +230,7 @@
             this.tcpBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tcpBtn.Location = new System.Drawing.Point(73, 46);
             this.tcpBtn.Name = "tcpBtn";
-            this.tcpBtn.Size = new System.Drawing.Size(62, 25);
+            this.tcpBtn.Size = new System.Drawing.Size(69, 25);
             this.tcpBtn.TabIndex = 9;
             this.tcpBtn.TabStop = true;
             this.tcpBtn.Text = "Tcp";
@@ -290,7 +296,7 @@
             this.pasiveRadio.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pasiveRadio.Location = new System.Drawing.Point(115, 702);
             this.pasiveRadio.Name = "pasiveRadio";
-            this.pasiveRadio.Size = new System.Drawing.Size(93, 25);
+            this.pasiveRadio.Size = new System.Drawing.Size(100, 25);
             this.pasiveRadio.TabIndex = 12;
             this.pasiveRadio.TabStop = true;
             this.pasiveRadio.Text = "passive";
@@ -302,7 +308,7 @@
             this.activeRadio.Cursor = System.Windows.Forms.Cursors.Hand;
             this.activeRadio.Location = new System.Drawing.Point(12, 702);
             this.activeRadio.Name = "activeRadio";
-            this.activeRadio.Size = new System.Drawing.Size(79, 25);
+            this.activeRadio.Size = new System.Drawing.Size(86, 25);
             this.activeRadio.TabIndex = 12;
             this.activeRadio.Text = "active";
             this.activeRadio.UseVisualStyleBackColor = true;
@@ -399,11 +405,59 @@
             this.label10.TabIndex = 6;
             this.label10.Text = "바코드";
             // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeight = 40;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.PV1,
+            this.PV2,
+            this.PV3,
+            this.PV4});
+            this.dataGridView1.Location = new System.Drawing.Point(412, 233);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowHeadersWidth = 72;
+            this.dataGridView1.RowTemplate.Height = 34;
+            this.dataGridView1.Size = new System.Drawing.Size(898, 240);
+            this.dataGridView1.TabIndex = 13;
+            // 
+            // PV1
+            // 
+            this.PV1.HeaderText = "PV1";
+            this.PV1.MinimumWidth = 9;
+            this.PV1.Name = "PV1";
+            this.PV1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.PV1.Width = 120;
+            // 
+            // PV2
+            // 
+            this.PV2.HeaderText = "PV2";
+            this.PV2.MinimumWidth = 9;
+            this.PV2.Name = "PV2";
+            this.PV2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.PV2.Width = 120;
+            // 
+            // PV3
+            // 
+            this.PV3.HeaderText = "PV3";
+            this.PV3.MinimumWidth = 9;
+            this.PV3.Name = "PV3";
+            this.PV3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.PV3.Width = 120;
+            // 
+            // PV4
+            // 
+            this.PV4.HeaderText = "PV4";
+            this.PV4.MinimumWidth = 9;
+            this.PV4.Name = "PV4";
+            this.PV4.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.PV4.Width = 120;
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1488, 1023);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.tcpPanel);
             this.Controls.Add(this.serialPanel);
             this.Controls.Add(this.tcpBtn);
@@ -415,6 +469,7 @@
             this.serialPanel.PerformLayout();
             this.tcpPanel.ResumeLayout(false);
             this.tcpPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -456,6 +511,11 @@
         private System.Windows.Forms.TextBox retryTxt;
         private System.Windows.Forms.Button barBtn;
         private System.Windows.Forms.TextBox barTxt;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PV1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PV2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PV3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PV4;
     }
 }
 

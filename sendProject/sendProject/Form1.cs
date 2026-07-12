@@ -77,11 +77,14 @@ namespace sendProject
             if (length < 0) { return; }
 
             byte[] by = new byte[length];
-            _serial.Read(by, 0, length);
+            byte[] by2 = new byte[length];
 
+            _serial.Read(by, 0, length);
             byte[] data= new byte[length - 3];
+            
             Array.Copy(by, 1, data, 0, data.Length);
             String msg = Encoding.UTF8.GetString(data);
+
 
             if (InvokeRequired)
             {
@@ -99,9 +102,14 @@ namespace sendProject
             else if (msg.Contains("SYNC"))
             {
                 ProcessSYNC();
-            } else if (msg.Contains("DWS"))
+            }
+            else if (msg.Contains("DWS"))
             {
-                 
+
+            }
+            else if (msg.Contains("TEMP"))
+            {
+                ProcessTemp(msg);
             }
 
         }
@@ -265,6 +273,91 @@ namespace sendProject
             }
         }
 
+        private void ProcessTemp(string msg)
+        {
+
+            var rnd = new Random();
+            //String[] splitData = msg.Split
+            string data = $"{_addr:00}TEMP,OK,{ rnd.Next(20, 30)},{ rnd.Next(20, 30)},{ rnd.Next(20, 30)},{ rnd.Next(20, 30)}";
+
+            byte[] body = Encoding.ASCII.GetBytes(data);
+            byte[] by = new byte[data.Length + 3];
+            by[0] = 0x02; //STX
+
+            Array.Copy(body, 0, by, 1, data.Length);
+
+            by[by.Length - 2] = 0x0D;
+            by[by.Length - 1] = 0x0A;
+            string chk = Encoding.UTF8.GetString(by);
+            _serial.Write(by, 0, by.Length);
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => { txtBox.Text += $"send : {chk}\n"; }));
+            }
+
+        }
+
+
+        private void ProcessTcp(string tcpMsg)
+        {
+            var t = tcpMsg.Split(',');           // ["T1","바코드","레시피","장비ID","SIDE"]
+            if (t.Length < 1) return;
+
+            string type = t[0].Trim();
+
+            if (type.Contains("T1")) ProcessT1(t);
+            else if (type.Contains("T2")) ProcessT2(t);
+            else if (type.Contains("T3")) ProcessT3(t);
+            else { 
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => { txtBox.AppendText($"TCP 데이터 [수신] 알 수 없는 타입: {tcpMsg}\r\n"); }));
+                }   
+
+            }
+        }
+
+        private void ProcessT1(string[] t)
+        {
+            if(t.Length<5) return; 
+
+            string[] t1 = new string[5];
+            bool isValid = false;
+            for (int i = 0; i < 5; i++)
+            {
+                t1[i] = t[i].Trim();
+            }
+            foreach (var item in t1)
+            {
+                if (string.IsNullOrEmpty(item))
+                {
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() => { txtBox.AppendText($"TCP 데이터 [수신] T1 필드 누락: {string.Join(",", t1)}\r\n"); }));
+                    }
+                    isValid = false;
+                }
+            }
+            string data = $"{_addr:00}T1,{t1[1]},{t1[2]},{t1[3]},{t1[4]},{(isValid ? "OK" : "NG")}";
+            SendTcpFramed(data, false);
+        }
+
+        private void ProcessT2(string[] t)
+        {
+
+        }
+
+        private void ProcessT3(string[] t)
+        {
+
+        }
+
+        public void SendTcpFramed (string payload, bool lasval )
+        {
+            if (!TcpConfig.Instance.IsServerRunning) return;
+            TcpConfig.Instance.SendData(payload, lasval);
+        }
 
         private int TransPvValue(int cellIdx, int value, int resultValue)
         {
@@ -296,8 +389,8 @@ namespace sendProject
                 }
                 else
                 {
-                    _serial.Open();
                     _serial.PortName = portList.Text;
+                    _serial.Open();
                 }
                 conBtn.Text = _serial.IsOpen ? "DisConnect" : "Connect";
             }
@@ -349,9 +442,11 @@ namespace sendProject
                 Invoke(new Action(() => OnTcpDataReceived(sender, data)));
                 return;
             }
+
             if (IsDisposed) return;
 
             txtBox.AppendText($"[수신] {data}\r\n");
+            ProcessTcp(data);
         }
 
 

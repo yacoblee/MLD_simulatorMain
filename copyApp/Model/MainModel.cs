@@ -1,6 +1,7 @@
 ﻿using copyApp.Conf;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -12,19 +13,23 @@ namespace copyApp.Model
 {
     public class MainModel
     {
+        private System.Timers.Timer _tempTimer;
         public event EventHandler<string> LogOccurred;
         public event EventHandler Connected;
         public event EventHandler<string> DataReceived;   // 수신 raw 데이터 브로드캐스트
 
-
         public ProtocolFIle Config;
         private System.Timers.Timer _startTimer;
+        public event EventHandler<int[]> TempReceived;
+        public event EventHandler<string> AckReceived;
+
+        private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
 
         // 프레이밍: STX + payload + CR LF (sendProject 규약)
         private const byte STX = 0x02;
-        private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
-
+        private string _rxBuffer = "";
         public bool IsConnected { get; private set; } = false;
+
 
 
 
@@ -38,8 +43,43 @@ namespace copyApp.Model
 
         private void OnData(object sender, string text)
         {
+            _rxBuffer += text;
+
+            if (_rxBuffer.Contains("TEMP"))
+            {
+                while (_rxBuffer.Contains("\n"))
+                {
+                    int idx = _rxBuffer.IndexOf("\n");
+                    string msg = _rxBuffer.Substring(0, idx);
+                    _rxBuffer = _rxBuffer.Substring(idx + 1);
+                    msg = msg.Replace("\r", "").Replace("\u0002", "").Trim();
+                    
+                    if (string.IsNullOrWhiteSpace(msg)) continue;
+                    TryParseTemp(msg);
+
+                }
+
+            }
+
             DataReceived?.Invoke(this, text);                     // View로 중계 (또는 파싱)
         }
+
+
+        public void PollingTemp()
+        {
+            if (_tempTimer == null)
+            {
+                _tempTimer = new System.Timers.Timer(30000);
+                _tempTimer.Elapsed += (s, e) =>
+                {
+                    if (!SerialComm.Instance.IsOpen) return;
+                    SerialComm.Instance.CheckTemp();
+                };
+            }
+            _tempTimer.Start();
+            if(SerialComm.Instance.IsOpen) SerialComm.Instance.CheckTemp();
+        }
+
 
 
 
@@ -72,19 +112,15 @@ namespace copyApp.Model
                 else
                 {
 
-                    bool result = SerialComm.Instance.Connect(portName, baudRate, parity, dataBits, stopBits); 
+                    IsConnected = SerialComm.Instance.Connect(portName, baudRate, parity, dataBits, stopBits); 
                 
-                    if(!result) { OnLogOccurred("포트 연결 실패"); return false; }
-                    IsConnected = SerialComm.Instance.VerifyConnection();
-                
+                    if(!IsConnected) { OnLogOccurred("포트 연결 실패"); return false; }
+                    //SerialComm.Instance.CheckTemp();
 
-                    // 포트 오픈 ≠ 실제 통신. probe로 상대 응답 확인
-                    if (IsConnected)
-                        OnLogOccurred(" 실제 연결 확인됨 (상대 응답 수신)");
-                    else
-                        OnLogOccurred(" 포트는 열렸으나 응답 없음 (상대 미연결/포트 불일치)");
-
+                    OnLogOccurred(" 실제 연결 확인됨 (상대 응답 수신)");
+                    
                     return true;
+                   
                 }
             }
             catch (Exception ex)
@@ -92,6 +128,42 @@ namespace copyApp.Model
                 IsConnected = false;
                 OnLogOccurred($"연결 실패: {ex.Message}");
                 return false;
+            }
+        }
+        public async Task<int[]> WaitFirstTempAsync(int timeoutMs)
+        {
+            var tcs = new TaskCompletionSource<int[]>();
+            void handler(object s, int[] t) { TempReceived -= handler; tcs.TrySetResult(t); }
+            TempReceived += handler;
+
+            if (SerialComm.Instance.IsOpen) SerialComm.Instance.CheckTemp();
+
+            var done = await Task.WhenAny(tcs.Task, Task.Delay(timeoutMs));
+            TempReceived -= handler;
+            return done == tcs.Task ? tcs.Task.Result : null;
+        }
+
+        private void TryParseTemp(string msg)
+        {
+            try
+            {
+                string[] tokens = msg.Split(',');
+                if (tokens.Length < 6) return;
+
+                int[] pv  = new int[tokens.Length - 2]; // CR, LF 제외
+                
+                if (tokens[1].Trim() == "OK")
+                {
+                    for (int i = 0; i < pv.Length; i++)
+                    {
+                        pv[i] = Convert.ToInt32(tokens[i+2].Trim());
+                    }
+                    TempReceived?.Invoke(this, pv);
+                }
+            }
+            catch (Exception ex)
+            {
+                OnLogOccurred($"온도값 파싱 오류: {ex.Message}");
             }
         }
 

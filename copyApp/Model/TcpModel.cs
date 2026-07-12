@@ -34,14 +34,14 @@ namespace copyApp.Model
         {
             TcpComm.Instance.DataReceived += OnData;
         }
-        
+
 
         private void OnData(object sender, string text)
         {
             DataReceived?.Invoke(this, text);
             LogOccurred?.Invoke(this, $"[수신 데이터] {text}");
 
-        } 
+        }
 
         public void ServerConn(string ipAddress, int port)
         {
@@ -84,13 +84,13 @@ namespace copyApp.Model
                 }
 
                 OnLogOccurred($"Connected to {ipAddress}:{port}");
-         
+
             }
             catch (Exception ex)
             {
                 IsConnected = false;
                 OnLogOccurred($"Connection failed: {ex.Message}");
- 
+
             }
         }
 
@@ -98,7 +98,7 @@ namespace copyApp.Model
         {
             try
             {
-                if(ServerConnected)
+                if (ServerConnected)
                 {
                     TcpComm.Instance.AllDisconnect();
                     ServerConnected = false;
@@ -114,7 +114,7 @@ namespace copyApp.Model
                     return IsConnected;
 
                 }
-            
+
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace copyApp.Model
             TcpComm.Instance.DataReceived -= OnData;
         }
 
-        private void OnLogOccurred (string message) => LogOccurred?.Invoke(this, message);
+        private void OnLogOccurred(string message) => LogOccurred?.Invoke(this, message);
 
         private void StartRetryTimer(int intervalMs)
         {
@@ -144,7 +144,7 @@ namespace copyApp.Model
             if (_retryTimer == null)
             {
                 _retryTimer = new System.Timers.Timer();
-                _retryTimer.Elapsed +=  OnRetryTimerElapsed; // 타이머 이벤트 연결
+                _retryTimer.Elapsed += OnRetryTimerElapsed; // 타이머 이벤트 연결
             }
 
             _retryTimer.Interval = intervalMs; // 넘겨받은 주기 설정 (밀리초 단위)
@@ -204,4 +204,5 @@ namespace copyApp.Model
 
 
         }
+    }
 }
