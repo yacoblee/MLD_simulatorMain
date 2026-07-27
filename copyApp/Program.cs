@@ -19,9 +19,10 @@ namespace copyApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            ConfigFile cnf = new ConfigFile();
 
             ProtocolFIle config = ProtocolFIle.Load();
-            MainModel model = new MainModel(config);
+            MainModel model = new MainModel(config, cnf);
             TcpModel tcpModel = new TcpModel();
 
             Application.Run(new MainView(model, tcpModel));

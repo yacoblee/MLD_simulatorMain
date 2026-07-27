@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -7,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace copyApp.Comm
 {
-    /// <summary>
-    /// TCP 통신 전담 싱글톤 모듈. 연결/송수신을 담당하고 수신 데이터를
-    /// 이벤트로 broadcast 한다. (UI/Model을 모름) — SerialComm과 동일 구조.
-    /// </summary>
     public sealed class TcpComm : IDisposable
     {
         public static TcpComm Instance { get; } = new TcpComm();
@@ -29,38 +26,30 @@ namespace copyApp.Comm
 
         private const byte STX = 0x02;
         private const byte ETX = 0x03;
+        private string _rxBuffer = "";
 
         public event EventHandler<string> DataReceived;
         public event EventHandler<string> LogOccurred;
         public event EventHandler Connected;
         public event EventHandler DisconnectedEvent;
 
-
-
         public bool IsConnected => _client != null && _client.Connected;
         public bool IsServerRunning => _serverRunning;
 
-
-
         private TcpComm() { }
-
 
         public bool ServerConnect(string host, int port)
         {
             try
             {
                 Disconnect();
-
                 IPAddress ipAddress = host == "any"? IPAddress.Any : IPAddress.Parse(host);
 
                 _listener = new TcpListener(ipAddress, port);
                 _listener.Start();
 
-
                 _serverRunning = true;
-
                 _serverThread = new Thread(ServerAccept) { IsBackground = true , Name = "Tcp-ServerAccept"};
-
 
                 _serverThread.Start();
                 OnLogOccurred("TCP 서버 동작중");
@@ -75,8 +64,6 @@ namespace copyApp.Comm
                 _serverRunning = false;
 
                 OnLogOccurred($"서버 실행 중 오류 발생 : {ex}");
-
-
                 return false;
             }
         }
@@ -119,6 +106,7 @@ namespace copyApp.Comm
                 await localClient.ConnectAsync(ip, port);
 
                 _stream = localClient.GetStream();
+                _client = localClient;
 
                 _running = true;
                 _rxThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "TCP-RX" };
@@ -145,15 +133,12 @@ namespace copyApp.Comm
 
         public void AllDisconnect()
         {
-            // 1. 서버 리스너 정지
             _serverRunning = false;
             try { _listener?.Stop(); } catch { }
             _listener = null;
 
-            // 2. 클라이언트 소켓 및 스트림 정지
             Disconnect();
 
-            // 3. 서버 대기 스레드 종료 확인
             if (_serverThread  != null && _serverThread.IsAlive)
             {
                 _serverThread.Join(500);
@@ -169,7 +154,7 @@ namespace copyApp.Comm
             framed[0] = STX;
             Array.Copy(body, 0, framed, 1, body.Length);
 
-            framed[framed.Length - 1] = ETX; // ETX
+            framed[framed.Length - 1] = ETX;
             _stream.Write(framed, 0, framed.Length);
         }
 
@@ -181,9 +166,31 @@ namespace copyApp.Comm
                 while (_running)
                 {
                     int read = _stream.Read(buffer, 0, buffer.Length);
-                    if (read <= 0) break;                       // 상대 종료
+                    if (read <= 0) break;
                     string text = Encoding.ASCII.GetString(buffer, 0, read);
-                    DataReceived?.Invoke(this, text);
+                    _rxBuffer += text;
+
+                    while (_rxBuffer.Contains((char)0x03))
+                    {
+                        int stxIdx = _rxBuffer.IndexOf((char)0x02);
+                        int etxIdx = _rxBuffer.IndexOf((char)0x03);
+
+                        if (stxIdx >= 0 && etxIdx > stxIdx)
+                        {
+                            string msg = _rxBuffer.Substring(stxIdx + 1, etxIdx - stxIdx - 1);
+                            _rxBuffer = _rxBuffer.Substring(etxIdx + 1);
+                            if (!string.IsNullOrWhiteSpace(msg))
+                            {
+                                DataReceived?.Invoke(this, msg);
+                            }
+                            DataReceived?.Invoke(this, msg);
+                        }
+                        else
+                        {
+                            _rxBuffer = "";
+                            break;
+                        }
+                    }
                 }
             }
             catch (Exception ex)

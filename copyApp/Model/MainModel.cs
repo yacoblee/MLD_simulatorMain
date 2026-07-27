@@ -1,7 +1,9 @@
-﻿using copyApp.Conf;
+﻿using copyApp.Comm;
+using copyApp.Conf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -16,14 +18,20 @@ namespace copyApp.Model
         private System.Timers.Timer _tempTimer;
         public event EventHandler<string> LogOccurred;
         public event EventHandler Connected;
-        public event EventHandler<string> DataReceived;   // 수신 raw 데이터 브로드캐스트
+        public event EventHandler<string> DataReceived;
 
         public ProtocolFIle Config;
         private System.Timers.Timer _startTimer;
         public event EventHandler<int[]> TempReceived;
         public event EventHandler<string> AckReceived;
 
+
+        public ConfigFile Cnf { get; }
+
         private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
+        public static string RecipeDir => Path.Combine(Application.StartupPath, "Settings");
+
+
 
         // 프레이밍: STX + payload + CR LF (sendProject 규약)
         private const byte STX = 0x02;
@@ -33,8 +41,9 @@ namespace copyApp.Model
 
 
 
-        public MainModel(ProtocolFIle config)
+        public MainModel(ProtocolFIle config, ConfigFile cnf)
         {
+            Cnf = cnf;
             Config = config;
             SerialComm.Instance.DataReceived += OnData;
             SerialComm.Instance.LogOccurred += (s, m) => OnLogOccurred(m);
@@ -61,7 +70,7 @@ namespace copyApp.Model
 
             }
 
-            DataReceived?.Invoke(this, text);                     // View로 중계 (또는 파싱)
+            DataReceived?.Invoke(this, text);
         }
 
 
@@ -81,7 +90,16 @@ namespace copyApp.Model
         }
 
 
+        public void SaveSv(int[] sv, string path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
 
+            var cfg = new ConfigFile { SelectedValue = sv };
+            if (cfg.Save(path))
+                OnLogOccurred($"[{Path.GetFileNameWithoutExtension(path)}] 레시피 저장 완료");
+        }
+
+   
 
         public void Save()
         {
@@ -96,6 +114,29 @@ namespace copyApp.Model
 
             OnLogOccurred("설정이 저장되었습니다.");
         }
+
+
+
+
+        public List<string> GetFileList()
+        {
+            if (!Directory.Exists(RecipeDir)) return new List<string>();
+
+            return Directory.GetFiles(RecipeDir, "*.json")
+                            .Select(Path.GetFileNameWithoutExtension)
+                            .Where(n => !string.Equals(n, "Setting", StringComparison.OrdinalIgnoreCase))
+                            .OrderBy(n => n)
+                            .ToList();
+        }
+
+        public int[] GetSelectedValue(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return Array.Empty<int>();
+            string path = Path.Combine(RecipeDir, fileName + ".json");
+            return ConfigFile.Load(path).SelectedValue ?? Array.Empty<int>();
+        }
+
+
 
 
         public Boolean Connect(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, string protocolName )
@@ -180,10 +221,6 @@ namespace copyApp.Model
 
         private void OnLogOccurred(string message) => LogOccurred?.Invoke(this, message);
  
-
-
-
-
 
     }
 }

@@ -1,10 +1,16 @@
+using copyApp.Comm;
 using copyApp.Model;
 using copyApp.View;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace copyApp
 {
@@ -13,7 +19,7 @@ namespace copyApp
 
         private MainModel _model;
         private TcpModel _tcpModel;
-
+        private ConfigFile _cnf;
         private readonly BindingList<int> _speeds =
             new BindingList<int> { 4800, 9600, 19200, 38400, 57600, 76800, 115200 };
         private readonly BindingList<int> _dataBits = new BindingList<int> { 7, 8, 9 };
@@ -21,6 +27,15 @@ namespace copyApp
         private readonly BindingList<StopBits> _stopBits = new BindingList<StopBits> { StopBits.One, StopBits.Two, StopBits.OnePointFive };
         private readonly BindingList<string> _protocols = new BindingList<string> { "PC-LINK STD", "PC-LINK+SUM", "MODBUS ASCII", "MODBUS RTU" };
         private readonly BindingList<string> _ports = new BindingList<string>();
+
+
+
+        private const byte STX = 0x02;
+        private const byte ETX = 0x03;  
+        private const string RES_OK = "OK";
+        private const string RES_NO = "NG";
+        private string productID = "pdx-0012";
+
 
 
         public int SelectedBaud => (int)cmbSpeed.SelectedItem;
@@ -40,15 +55,19 @@ namespace copyApp
 
             _model.LogOccurred += _model_LogOccurred;
             _model.DataReceived += (s, data) => WriteLog($"[수신] {data}");
-            _model.TempReceived += (s, temps) => SetPvRow(temps);
+            _model.TempReceived += (s, temps) =>
+            {
+                SetPvRow(temps);
+                _tcpModel.UpdatePv(temps);
+            };
 
             _tcpModel.LogOccurred += _model_LogOccurred;
             _tcpModel.DataReceived += (s, data) => WriteLog($"[TCP 수신] {data}");
-
-
             InitializeComponent();
             BindControls();
             RestoreFromConfig();
+
+
         }
 
 
@@ -66,8 +85,8 @@ namespace copyApp
 
             serialBtn.CheckedChanged += Connected_RadioBtn;
             tcpBtn.CheckedChanged += Connected_RadioBtn;
-
             SetupTempGrid();
+            RefreshRegistBox();
             UpdateMainUI();
         }
 
@@ -109,15 +128,39 @@ namespace copyApp
                 dataGridView1.Rows[0].Cells[c].Value = temps[c].ToString("0");
         }
 
-        // SV행 입력값 읽기 (전송/레시피 저장용)
-        public double[] GetSvValues()
+
+        public int[] GetSvValues()
         {
-            var sv = new double[dataGridView1.Columns.Count];
+            var sv = new int[dataGridView1.Columns.Count];
             for (int c = 0; c < sv.Length; c++)
-                double.TryParse(dataGridView1.Rows[1].Cells[c].Value?.ToString(), out sv[c]);
+                int.TryParse(dataGridView1.Rows[1].Cells[c].Value?.ToString(), out sv[c]);
             return sv;
         }
 
+        private void RefreshRegistBox(string selectFileName = "")
+        {
+            var fileList = _model.GetFileList();
+            registBox.DataSource = null;
+            registBox.DataSource = fileList;
+
+            if (!string.IsNullOrEmpty(selectFileName) && fileList.Contains(selectFileName))
+            {
+                registBox.SelectedItem = selectFileName;
+            }
+        }
+
+        private void SetSvRow(int[] svValues)
+        {
+            if (svValues == null) return;
+            if (dataGridView1.Rows.Count < 2) return;
+
+            int columnCount = dataGridView1.Columns.Count;
+            for (int c = 0; c < columnCount; c++)
+            {
+                string val = (c < svValues.Length) ? svValues[c].ToString() : "0";
+                dataGridView1.Rows[1].Cells[c].Value = val;
+            }
+        }
 
         private void RestoreFromConfig()
         {
@@ -262,9 +305,62 @@ namespace copyApp
             }
         }
 
+
         private void tcpSend_Click(object sender, EventArgs e)
         {
-            _tcpModel.Send(textLog.Text); 
+            if (_tcpModel.IsConnected)
+            {
+                try
+                {
+                    string _barcode = barTxt.Text.Trim();
+                    string _recipe = registBox.SelectedItem?.ToString();
+                    string _eqpId = productID;
+                    string _side = "FRONT";
+
+                    _tcpModel.StartT1Process(_barcode, _recipe, _eqpId, _side);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"데이터 전송 중 오류 발생: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            } else
+            {
+                MessageBox.Show("통신이 연결되지 않은 상태입니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+      
+        }
+
+
+
+        private void registBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedFileName = registBox.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedFileName)) return;
+
+            int[] svValues = _model.GetSelectedValue(selectedFileName);
+            _tcpModel.UpdateSv(svValues);
+            SetSvRow(svValues);
+        }
+
+        private void regiBtn_Click(object sender, EventArgs e)
+        {
+            int[] sv = GetSvValues();
+
+            using (var dlg = new SaveFileDialog())
+            {
+                System.IO.Directory.CreateDirectory(MainModel.RecipeDir);
+                dlg.InitialDirectory = MainModel.RecipeDir;
+                dlg.Filter = "레시피 (*.json)|*.json";
+                dlg.DefaultExt = "json";
+                dlg.AddExtension = true;
+
+                if (dlg.ShowDialog() != DialogResult.OK) return;
+
+                _model.SaveSv(sv, dlg.FileName);
+
+                RefreshRegistBox(System.IO.Path.GetFileNameWithoutExtension(dlg.FileName));
+            }
         }
     }
 }

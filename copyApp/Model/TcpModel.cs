@@ -15,24 +15,49 @@ namespace copyApp.Model
         public event EventHandler<string> DataReceived;
         public event EventHandler<string> LogOccurred;
 
-        private System.Timers.Timer _retryTimer;    // 주기적인 재연결을 시도할 백그라운드 타이머
-        private int _maxRetryCount = 0;             // 최대 허용 재시도 횟수
-        private int _currentRetryCount = 0;          // 현재 재시도 누적 횟수
+        private System.Timers.Timer _retryTimer;    
+        private int _maxRetryCount = 0;            
+        private int _currentRetryCount = 0;      
 
-        // 연결에 필요한 정보를 타이머 핸들러가 알 수 있도록 임시 보관할 변수
         private string _targetIp;
         private int _targetPort;
 
 
         private string _serverIp;
         private int _serverPort;
+        private int[] _sv; 
+        private int[] _pv;
+
+        public void UpdatePv(int[] pv) => _pv = pv;
+        public void UpdateSv(int[] sv) => _sv = sv;
 
         public bool IsConnected { get; private set; }
         public bool ServerConnected { get; private set; }
 
+        private enum ProcessState
+        {
+            Idle,
+            WaitingT1Response,
+            WaitingT2Response,
+            WaitingT3Response 
+        }
+
+        private ProcessState _currentState = ProcessState.Idle;
+
+
+        private string _barcode;
+        private string _recipe;
+        private string _eqpId;
+        private string _side;
+        private string _tempSv;
+        private string _tempPv;
+
+        private const string DELIM = "/";
+
         public TcpModel()
         {
             TcpComm.Instance.DataReceived += OnData;
+            TcpComm.Instance.LogOccurred += (s, m) => OnLogOccurred(m);
         }
 
 
@@ -41,6 +66,46 @@ namespace copyApp.Model
             DataReceived?.Invoke(this, text);
             LogOccurred?.Invoke(this, $"[수신 데이터] {text}");
 
+
+            string[] tokens = text.Split('/');
+            string cmdType = tokens[0];
+            string result = tokens[tokens.Length - 1].Trim();
+
+            if (result == "NG")
+            {
+                OnLogOccurred($"{cmdType} 단계에서 에러가 발생하여 프로세스를 중단합니다.");
+                _currentState = ProcessState.Idle;
+                return;
+            }
+
+   
+            switch (_currentState)
+            {
+                case ProcessState.WaitingT1Response:
+                    if (cmdType == "T1" && result == "OK")
+                    {
+                        _currentState = ProcessState.WaitingT2Response;
+                        OnLogOccurred("T1 단계 완료. T2 단계로 진행합니다.");
+                        
+                        StartT2Process();
+                    }
+                    break;
+                case ProcessState.WaitingT2Response:
+                    if (cmdType == "T2")
+                    {
+                        _currentState = ProcessState.WaitingT3Response;
+                        OnLogOccurred("T2 단계 완료. T3 단계로 진행합니다.");
+                    }
+                    break; 
+                case ProcessState.WaitingT3Response:
+                    if (cmdType == "T3")
+                    {
+                        _currentState = ProcessState.Idle;
+                        OnLogOccurred("T3 단계 완료. 전체 프로세스가 성공적으로 완료되었습니다.");
+                    }
+                    break;
+            }
+            
         }
 
         public void ServerConn(string ipAddress, int port)
@@ -53,7 +118,7 @@ namespace copyApp.Model
             if (ServerConnected)
             {
                 OnLogOccurred($"Connected to {ipAddress}:{port} Success ");
-                StopRetryTimer(); // 연결 성공 시 타이머 정리
+                StopRetryTimer();
             }
             OnLogOccurred($"Connected to {ipAddress}:{port}");
 
@@ -67,8 +132,6 @@ namespace copyApp.Model
             _targetPort = port;
             _maxRetryCount = retryCnt;
             _currentRetryCount = 0;
-
-
             try
             {
                 IsConnected = await TcpComm.Instance.Connect(ipAddress, port);
@@ -76,21 +139,18 @@ namespace copyApp.Model
                 if (IsConnected)
                 {
                     OnLogOccurred($"Connected to {ipAddress}:{port}");
-                    StopRetryTimer(); // 연결 성공 시 타이머 정리
+                    StopRetryTimer();
                 }
                 else
                 {
                     StartRetryTimer(timeOutCnt);
                 }
 
-                OnLogOccurred($"Connected to {ipAddress}:{port}");
-
             }
             catch (Exception ex)
             {
                 IsConnected = false;
                 OnLogOccurred($"Connection failed: {ex.Message}");
-
             }
         }
 
@@ -147,8 +207,8 @@ namespace copyApp.Model
                 _retryTimer.Elapsed += OnRetryTimerElapsed; // 타이머 이벤트 연결
             }
 
-            _retryTimer.Interval = intervalMs; // 넘겨받은 주기 설정 (밀리초 단위)
-            _retryTimer.AutoReset = false;     // 한 번 켜지고 꺼진 후, 다음 연결 시도 결과에 따라 재점등하기 위함
+            _retryTimer.Interval = intervalMs;
+            _retryTimer.AutoReset = false;
             _retryTimer.Start();
 
             _currentRetryCount++;
@@ -179,7 +239,6 @@ namespace copyApp.Model
                 }
                 else
                 {
-                    // 또 실패하면 카운트 체크 후 다시 타이머 가동
                     StartRetryTimer((int)_retryTimer.Interval);
                 }
             }
@@ -195,14 +254,60 @@ namespace copyApp.Model
             if (IsConnected || ServerConnected)
             {
                 TcpComm.Instance.SendFramed(message);
-                OnLogOccurred($"[송신 데이터] {message}");
+                OnLogOccurred($"송신 데이터 ---->  {message}");
             }
             else
             {
                 OnLogOccurred("연결되지 않은 상태에서 데이터를 전송하려고 시도했습니다.");
             }
 
-
         }
+
+
+
+        public void StartT1Process(string barcode, string recipe, string eqpId, string side)
+        {
+            _barcode = barcode;
+            _recipe = recipe;
+            _eqpId = eqpId;
+            _side = side;
+
+            _currentState = ProcessState.WaitingT1Response;
+
+            string payload = string.Join(DELIM, "T1", _barcode, _recipe, _eqpId, _side);
+            Send(payload);
+
+            OnLogOccurred("T1 전송 완료. 서버 응답 대기 중...");
+        }
+        public int TempCount { get; set; } = 4;
+
+        public void StartT2Process()
+        {
+            string svStr = string.Join(",", _sv);        
+            string pvStr = string.Join(",", _pv);
+            string sv = $"{pvStr},{svStr}";
+            
+            TempCount = _pv.Length;
+
+            _currentState = ProcessState.WaitingT2Response;
+            string payload = string.Join(DELIM, "T2", _barcode, _recipe, _eqpId, _side, TempCount.ToString("00"), sv);
+            Send(payload);
+            OnLogOccurred("T2 전송 완료. 서버 응답 대기 중...");
+        }
+
+        public void StartT3Process(string tempSv, string tempPv)
+        {
+            string svStr = string.Join(",", _sv);
+            string pvStr = string.Join(",", _pv);
+            string sv = $"{pvStr},{svStr}";
+
+            TempCount = _pv.Length;
+
+            _currentState = ProcessState.WaitingT2Response;
+            string payload = string.Join(DELIM, "T3", _barcode, _recipe, _eqpId, _side, TempCount.ToString("00"), sv);
+            Send(payload);
+            OnLogOccurred("T3 전송 완료. 서버 응답 대기 중...");
+        }
+
     }
 }

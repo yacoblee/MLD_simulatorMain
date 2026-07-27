@@ -48,6 +48,7 @@
             this.tcpBtn = new System.Windows.Forms.RadioButton();
             this.serialPanel = new System.Windows.Forms.Panel();
             this.tcpPanel = new System.Windows.Forms.Panel();
+            this.registBox = new System.Windows.Forms.ComboBox();
             this.barBtn = new System.Windows.Forms.Button();
             this.pasiveRadio = new System.Windows.Forms.RadioButton();
             this.activeRadio = new System.Windows.Forms.RadioButton();
@@ -56,6 +57,8 @@
             this.portTxt = new System.Windows.Forms.TextBox();
             this.barTxt = new System.Windows.Forms.TextBox();
             this.ipTxt = new System.Windows.Forms.TextBox();
+            this.regiBtn = new System.Windows.Forms.Button();
+            this.label12 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.tcpConBtn = new System.Windows.Forms.Button();
@@ -106,7 +109,7 @@
             // 
             // textLog
             // 
-            this.textLog.Location = new System.Drawing.Point(426, 574);
+            this.textLog.Location = new System.Drawing.Point(615, 590);
             this.textLog.Multiline = true;
             this.textLog.Name = "textLog";
             this.textLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -259,6 +262,7 @@
             // 
             // tcpPanel
             // 
+            this.tcpPanel.Controls.Add(this.registBox);
             this.tcpPanel.Controls.Add(this.barBtn);
             this.tcpPanel.Controls.Add(this.pasiveRadio);
             this.tcpPanel.Controls.Add(this.activeRadio);
@@ -267,7 +271,9 @@
             this.tcpPanel.Controls.Add(this.portTxt);
             this.tcpPanel.Controls.Add(this.barTxt);
             this.tcpPanel.Controls.Add(this.ipTxt);
+            this.tcpPanel.Controls.Add(this.regiBtn);
             this.tcpPanel.Controls.Add(this.tcpSend);
+            this.tcpPanel.Controls.Add(this.label12);
             this.tcpPanel.Controls.Add(this.label11);
             this.tcpPanel.Controls.Add(this.label8);
             this.tcpPanel.Controls.Add(this.tcpConBtn);
@@ -276,12 +282,22 @@
             this.tcpPanel.Controls.Add(this.label10);
             this.tcpPanel.Location = new System.Drawing.Point(33, 77);
             this.tcpPanel.Name = "tcpPanel";
-            this.tcpPanel.Size = new System.Drawing.Size(241, 870);
+            this.tcpPanel.Size = new System.Drawing.Size(364, 925);
             this.tcpPanel.TabIndex = 12;
+            // 
+            // registBox
+            // 
+            this.registBox.DropDownWidth = 200;
+            this.registBox.FormattingEnabled = true;
+            this.registBox.Location = new System.Drawing.Point(18, 571);
+            this.registBox.Name = "registBox";
+            this.registBox.Size = new System.Drawing.Size(201, 29);
+            this.registBox.TabIndex = 14;
+            this.registBox.SelectedIndexChanged += new System.EventHandler(this.registBox_SelectedIndexChanged);
             // 
             // barBtn
             // 
-            this.barBtn.Location = new System.Drawing.Point(146, 113);
+            this.barBtn.Location = new System.Drawing.Point(250, 75);
             this.barBtn.Name = "barBtn";
             this.barBtn.Size = new System.Drawing.Size(74, 34);
             this.barBtn.TabIndex = 13;
@@ -294,7 +310,7 @@
             this.pasiveRadio.AutoSize = true;
             this.pasiveRadio.Checked = true;
             this.pasiveRadio.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pasiveRadio.Location = new System.Drawing.Point(115, 702);
+            this.pasiveRadio.Location = new System.Drawing.Point(119, 744);
             this.pasiveRadio.Name = "pasiveRadio";
             this.pasiveRadio.Size = new System.Drawing.Size(100, 25);
             this.pasiveRadio.TabIndex = 12;
@@ -306,7 +322,7 @@
             // 
             this.activeRadio.AutoSize = true;
             this.activeRadio.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.activeRadio.Location = new System.Drawing.Point(12, 702);
+            this.activeRadio.Location = new System.Drawing.Point(15, 744);
             this.activeRadio.Name = "activeRadio";
             this.activeRadio.Size = new System.Drawing.Size(86, 25);
             this.activeRadio.TabIndex = 12;
@@ -317,21 +333,21 @@
             // 
             this.retryTxt.Location = new System.Drawing.Point(19, 485);
             this.retryTxt.Name = "retryTxt";
-            this.retryTxt.Size = new System.Drawing.Size(201, 32);
+            this.retryTxt.Size = new System.Drawing.Size(256, 32);
             this.retryTxt.TabIndex = 11;
             // 
             // timeTxt
             // 
             this.timeTxt.Location = new System.Drawing.Point(19, 381);
             this.timeTxt.Name = "timeTxt";
-            this.timeTxt.Size = new System.Drawing.Size(201, 32);
+            this.timeTxt.Size = new System.Drawing.Size(248, 32);
             this.timeTxt.TabIndex = 11;
             // 
             // portTxt
             // 
             this.portTxt.Location = new System.Drawing.Point(19, 286);
             this.portTxt.Name = "portTxt";
-            this.portTxt.Size = new System.Drawing.Size(201, 32);
+            this.portTxt.Size = new System.Drawing.Size(248, 32);
             this.portTxt.TabIndex = 11;
             // 
             // barTxt
@@ -346,8 +362,28 @@
             // 
             this.ipTxt.Location = new System.Drawing.Point(19, 192);
             this.ipTxt.Name = "ipTxt";
-            this.ipTxt.Size = new System.Drawing.Size(201, 32);
+            this.ipTxt.Size = new System.Drawing.Size(256, 32);
             this.ipTxt.TabIndex = 11;
+            // 
+            // regiBtn
+            // 
+            this.regiBtn.Location = new System.Drawing.Point(255, 785);
+            this.regiBtn.Name = "regiBtn";
+            this.regiBtn.Size = new System.Drawing.Size(100, 56);
+            this.regiBtn.TabIndex = 10;
+            this.regiBtn.Text = "SV 저장";
+            this.regiBtn.UseVisualStyleBackColor = true;
+            this.regiBtn.Click += new System.EventHandler(this.regiBtn_Click);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(18, 547);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(80, 21);
+            this.label12.TabIndex = 6;
+            this.label12.Text = "Receipe";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label11
             // 
@@ -407,17 +443,18 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.ColumnHeadersHeight = 40;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.PV1,
             this.PV2,
             this.PV3,
             this.PV4});
-            this.dataGridView1.Location = new System.Drawing.Point(412, 233);
+            this.dataGridView1.Location = new System.Drawing.Point(615, 250);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 72;
             this.dataGridView1.RowTemplate.Height = 34;
-            this.dataGridView1.Size = new System.Drawing.Size(898, 240);
+            this.dataGridView1.Size = new System.Drawing.Size(967, 240);
             this.dataGridView1.TabIndex = 13;
             // 
             // PV1
@@ -426,7 +463,6 @@
             this.PV1.MinimumWidth = 9;
             this.PV1.Name = "PV1";
             this.PV1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.PV1.Width = 120;
             // 
             // PV2
             // 
@@ -434,7 +470,6 @@
             this.PV2.MinimumWidth = 9;
             this.PV2.Name = "PV2";
             this.PV2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.PV2.Width = 120;
             // 
             // PV3
             // 
@@ -442,7 +477,6 @@
             this.PV3.MinimumWidth = 9;
             this.PV3.Name = "PV3";
             this.PV3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.PV3.Width = 120;
             // 
             // PV4
             // 
@@ -450,13 +484,12 @@
             this.PV4.MinimumWidth = 9;
             this.PV4.Name = "PV4";
             this.PV4.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.PV4.Width = 120;
             // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1488, 1023);
+            this.ClientSize = new System.Drawing.Size(1724, 1023);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.tcpPanel);
             this.Controls.Add(this.serialPanel);
@@ -516,6 +549,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn PV2;
         private System.Windows.Forms.DataGridViewTextBoxColumn PV3;
         private System.Windows.Forms.DataGridViewTextBoxColumn PV4;
+        private System.Windows.Forms.ComboBox registBox;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button regiBtn;
     }
 }
 

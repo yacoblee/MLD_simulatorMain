@@ -16,3 +16,10 @@
 *.dll
 *.pdb
 *.app
+
+# NuGet 패키지 설치 폴더 (packages.config 로 복원되므로 커밋 불필요)
+packages/
+*.nupkg
+
+# 문서 / 학습자료 (코드 외 .md)
+docs/

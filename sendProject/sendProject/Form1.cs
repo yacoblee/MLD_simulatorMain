@@ -301,7 +301,7 @@ namespace sendProject
 
         private void ProcessTcp(string tcpMsg)
         {
-            var t = tcpMsg.Split(',');           // ["T1","바코드","레시피","장비ID","SIDE"]
+            var t = tcpMsg.Split('/');           // ["T1","바코드","레시피","장비ID","SIDE"]
             if (t.Length < 1) return;
 
             string type = t[0].Trim();
@@ -320,43 +320,109 @@ namespace sendProject
 
         private void ProcessT1(string[] t)
         {
-            if(t.Length<5) return; 
+            if(t.Length < 5) return; 
+
+
 
             string[] t1 = new string[5];
-            bool isValid = false;
+            bool isValid = true;
             for (int i = 0; i < 5; i++)
             {
                 t1[i] = t[i].Trim();
             }
             foreach (var item in t1)
-            {
-                if (string.IsNullOrEmpty(item))
-                {
-                    if (InvokeRequired)
-                    {
-                        Invoke(new Action(() => { txtBox.AppendText($"TCP 데이터 [수신] T1 필드 누락: {string.Join(",", t1)}\r\n"); }));
-                    }
-                    isValid = false;
-                }
-            }
-            string data = $"{_addr:00}T1,{t1[1]},{t1[2]},{t1[3]},{t1[4]},{(isValid ? "OK" : "NG")}";
-            SendTcpFramed(data, false);
+                if (string.IsNullOrEmpty(item)) isValid = false;
+
+            string result = isValid ? "OK" : "NG";
+            // 서버 -> 장비 : STX / T1 / 바코드 / 레시피 / 장비ID / SIDE / OK또는NG / (ETX)
+            string receivedData = string.Join("/", "T1", t1[1], t1[2], t1[3], t1[4], result);
+
+            SendTcpFramed(receivedData, true);
         }
 
         private void ProcessT2(string[] t)
         {
+            bool isValid = true;
+
+            if (t.Length < 6) isValid = false;
+            if (!int.TryParse(t[5], out int t2) || t2 <= 0)
+            {
+                txtBox.AppendText($"유효하지 않은 Count 값입니다: {t[5]}");
+                return;
+            }
+            string[] t2Val = new string[5];
+            string[] t2Sv = new string[t2];
+            string[] t2Pv = new string[t2];
+
+            for (int i = 0; i < 5; i++)
+            {
+                t2Val[i] = t[i].Trim();
+            }
+            var tVar = t[6].Split(',');
+
+
+            for (int i = 0; i < t2; i++)
+            {
+                t2Pv[i] = tVar[i].Trim();
+                t2Sv[i] = tVar[i+ t2].Trim();
+            }   
+
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => { txtBox.AppendText($"수신받인 데이터 ${t}\r\n" +
+                    $"T2Pv: {string.Join(",", t2Pv)}\r\nT2Sv: {string.Join(",", t2Sv)}\r\n"); }));
+            }
+            string result = isValid ? "OK" : "NG";
+            string receivedData = string.Join("/", "T2", t2Val[1], t2Val[2], t2Val[3], t2Val[4], t2Sv, t2Pv, result);
 
         }
 
         private void ProcessT3(string[] t)
         {
+            bool isValid = true;
+
+            if (t.Length < 6) isValid = false;
+
+            string[] t3Val = new string[7];
+
+            if (!int.TryParse(t[5], out int t3) || t3 <= 0)
+            {
+                txtBox.AppendText($"유효하지 않은 Count 값입니다: {t[5]}");
+                return;
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                t3Val[i] = t[i].Trim();
+            }
+
+            var tVar = t[6].Split(',');
+            string[] t3Sv = new string[t3];
+            string[] t3Pv = new string[t3];
+
+            for (int i = 0; i < t3; i++)
+            {
+                t3Pv[i] = tVar[i].Trim();
+                t3Sv[i] = tVar[i + t3].Trim();
+            }
+
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => {
+                    txtBox.AppendText($"수신받인 데이터 ${t}\r\n" +
+                    $"T3Pv: {string.Join(",", t3Pv)}\r\nT3Sv: {string.Join(",", t3Sv)}\r\n");
+                }));
+            }
+            string result = isValid ? "OK" : "NG";
+            string receivedData = string.Join("/", "T3", t3Val[1], t3Val[2], t3Val[3], t3Val[4], t3Sv, t3Pv, result);
 
         }
 
-        public void SendTcpFramed (string payload, bool lasval )
+        public void SendTcpFramed (string payload, bool lastVal )
         {
             if (!TcpConfig.Instance.IsServerRunning) return;
-            TcpConfig.Instance.SendData(payload, lasval);
+            TcpConfig.Instance.SendData(payload, lastVal);
         }
 
         private int TransPvValue(int cellIdx, int value, int resultValue)
