@@ -39,7 +39,7 @@ namespace copyApp.Conf
                 string text = Encoding.ASCII.GetString(data);
                 
                 _rxSignal.Set();
-                DataReceived?.Invoke(this, text);   // 모든 구독자에게 broadcast
+                DataReceived?.Invoke(this, text);
             }
             catch (Exception ex) { OnLogOccurred($"수신 오류: {ex.Message}"); }
         }

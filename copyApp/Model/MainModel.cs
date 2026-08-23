@@ -136,6 +136,12 @@ namespace copyApp.Model
             return ConfigFile.Load(path).SelectedValue ?? Array.Empty<int>();
         }
 
+        public void SendFramed(string payload)
+        {
+            if (!IsConnected) return;
+            SerialComm.Instance.SendFramed(payload);
+        }
+
 
 
 

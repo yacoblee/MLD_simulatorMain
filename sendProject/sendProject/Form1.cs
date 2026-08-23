@@ -295,7 +295,6 @@ namespace sendProject
             {
                 Invoke(new Action(() => { txtBox.Text += $"send : {chk}\n"; }));
             }
-
         }
 
 
@@ -305,6 +304,11 @@ namespace sendProject
             if (t.Length < 1) return;
 
             string type = t[0].Trim();
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => { txtBox.AppendText($"TCP 데이터 {type}\r\n"); }));
+            }
 
             if (type.Contains("T1")) ProcessT1(t);
             else if (type.Contains("T2")) ProcessT2(t);
@@ -375,7 +379,7 @@ namespace sendProject
             }
             string result = isValid ? "OK" : "NG";
             string receivedData = string.Join("/", "T2", t2Val[1], t2Val[2], t2Val[3], t2Val[4], t2Sv, t2Pv, result);
-
+            SendTcpFramed(receivedData, isValid);
         }
 
         private void ProcessT3(string[] t)
@@ -416,7 +420,7 @@ namespace sendProject
             }
             string result = isValid ? "OK" : "NG";
             string receivedData = string.Join("/", "T3", t3Val[1], t3Val[2], t3Val[3], t3Val[4], t3Sv, t3Pv, result);
-
+             SendTcpFramed(receivedData, isValid);
         }
 
         public void SendTcpFramed (string payload, bool lastVal )
@@ -464,7 +468,6 @@ namespace sendProject
             {
                 MessageBox.Show(ex.Message);
             }
-
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -523,7 +526,10 @@ namespace sendProject
             base.OnFormClosed(e);
         }
 
+        private void sendBtn_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 
 

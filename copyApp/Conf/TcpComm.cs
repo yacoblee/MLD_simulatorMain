@@ -183,7 +183,6 @@ namespace copyApp.Comm
                             {
                                 DataReceived?.Invoke(this, msg);
                             }
-                            DataReceived?.Invoke(this, msg);
                         }
                         else
                         {

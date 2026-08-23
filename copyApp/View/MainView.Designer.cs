@@ -70,6 +70,7 @@
             this.PV2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PV3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PV4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.serialsnd = new System.Windows.Forms.Button();
             this.serialPanel.SuspendLayout();
             this.tcpPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -134,7 +135,7 @@
             this.connBtn.TabIndex = 5;
             this.connBtn.Text = "연결";
             this.connBtn.UseVisualStyleBackColor = true;
-            this.connBtn.Click += new System.EventHandler(this.connBtn_Click);
+            this.connBtn.Click += new System.EventHandler(async (s, e) => await this.connBtn_Click(s, e));
             // 
             // label1
             // 
@@ -241,6 +242,7 @@
             // 
             // serialPanel
             // 
+            this.serialPanel.Controls.Add(this.serialsnd);
             this.serialPanel.Controls.Add(this.cmbStopBit);
             this.serialPanel.Controls.Add(this.cmbSpeed);
             this.serialPanel.Controls.Add(this.cmbBit);
@@ -257,7 +259,7 @@
             this.serialPanel.Controls.Add(this.label3);
             this.serialPanel.Location = new System.Drawing.Point(36, 97);
             this.serialPanel.Name = "serialPanel";
-            this.serialPanel.Size = new System.Drawing.Size(241, 560);
+            this.serialPanel.Size = new System.Drawing.Size(241, 640);
             this.serialPanel.TabIndex = 11;
             // 
             // tcpPanel
@@ -280,7 +282,7 @@
             this.tcpPanel.Controls.Add(this.label9);
             this.tcpPanel.Controls.Add(this.label7);
             this.tcpPanel.Controls.Add(this.label10);
-            this.tcpPanel.Location = new System.Drawing.Point(33, 77);
+            this.tcpPanel.Location = new System.Drawing.Point(73, 97);
             this.tcpPanel.Name = "tcpPanel";
             this.tcpPanel.Size = new System.Drawing.Size(364, 925);
             this.tcpPanel.TabIndex = 12;
@@ -485,6 +487,16 @@
             this.PV4.Name = "PV4";
             this.PV4.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             // 
+            // serialsnd
+            // 
+            this.serialsnd.Location = new System.Drawing.Point(6, 550);
+            this.serialsnd.Name = "serialsnd";
+            this.serialsnd.Size = new System.Drawing.Size(106, 54);
+            this.serialsnd.TabIndex = 9;
+            this.serialsnd.Text = "전송";
+            this.serialsnd.UseVisualStyleBackColor = true;
+            this.serialsnd.Click += new System.EventHandler(this.serialsnd_Click);
+            // 
             // MainView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
@@ -552,6 +564,7 @@
         private System.Windows.Forms.ComboBox registBox;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Button regiBtn;
+        private System.Windows.Forms.Button serialsnd;
     }
 }
 

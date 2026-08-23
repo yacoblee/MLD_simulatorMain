@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -63,10 +64,10 @@ namespace copyApp
 
             _tcpModel.LogOccurred += _model_LogOccurred;
             _tcpModel.DataReceived += (s, data) => WriteLog($"[TCP 수신] {data}");
+            _tcpModel.ProcessCompleted += (s, barcode) => _model.SendFramed(string.Join(",", barcode, ":SWITCH2:ON?"));
             InitializeComponent();
             BindControls();
             RestoreFromConfig();
-
 
         }
 
@@ -188,6 +189,8 @@ namespace copyApp
                 return;
             }
             if (IsDisposed) { return; }
+
+
             textLog.AppendText($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]: {message}\r\n");
 
         }
@@ -205,21 +208,12 @@ namespace copyApp
             _model.Save();
         }
 
-        private void connBtn_Click(object sender, EventArgs e)
-        {
-            //var ok = _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
-            //connBtn.Text = ok ? "연결해제" : "연결";
-        }
+
 
         private async Task<bool> PreviousConn () 
         {
- 
-            if(! _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol)) 
-            { MessageBox.Show("온도값 수신 실패"); return false; }
-
-            int [] temps = await _model.WaitFirstTempAsync(3000);
+            int[] temps = await _model.WaitFirstTempAsync(3000);   // Connect() 재호출 삭제 — 포트는 이미 열려 있음
             if (temps == null) { MessageBox.Show("온도값 수신 실패(타임아웃)"); return false; }
-
             return true;
         }
 
@@ -230,9 +224,6 @@ namespace copyApp
             if (pasiveRadio.Checked) // 장비 역할
             {
 
-                bool ok = await PreviousConn();
-
-                if (!ok) return;
 
                 if (!_tcpModel.IsConnected)
                 {
@@ -249,6 +240,7 @@ namespace copyApp
                     }
 
                     await _tcpModel.Connect(ipTxt.Text, int.Parse(portTxt.Text),  timeValue, retryValue);
+
                 }
                 else
                 {
@@ -362,5 +354,28 @@ namespace copyApp
                 RefreshRegistBox(System.IO.Path.GetFileNameWithoutExtension(dlg.FileName));
             }
         }
+
+        private async Task<bool> connBtn_Click(object sender, EventArgs e)
+        {
+            var ok = _model.Connect(SelectedPort, SelectedBaud, SelectedParity, SelectedDataBits, SelectedStopBits, SelectedProtocol);
+            connBtn.Text = ok ? "연결해제" : "연결";
+
+            if (!ok) return false;
+
+            bool ok2 = await PreviousConn();
+            if (!ok2)
+            {
+                _model.Disconnect();
+                connBtn.Text = "연결";
+            }
+            return ok2;
+        }
+
+        private void serialsnd_Click(object sender, EventArgs e)
+        {
+            string barcodTxt = string.Join(",", barTxt.Text, ":SWITCH:ON?");
+            _model.SendFramed(barcodTxt);
+        }
+
     }
 }

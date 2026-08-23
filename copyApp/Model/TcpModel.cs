@@ -14,6 +14,7 @@ namespace copyApp.Model
     {
         public event EventHandler<string> DataReceived;
         public event EventHandler<string> LogOccurred;
+        public event EventHandler<string> ProcessCompleted;
 
         private System.Timers.Timer _retryTimer;    
         private int _maxRetryCount = 0;            
@@ -49,8 +50,7 @@ namespace copyApp.Model
         private string _recipe;
         private string _eqpId;
         private string _side;
-        private string _tempSv;
-        private string _tempPv;
+
 
         private const string DELIM = "/";
 
@@ -91,16 +91,18 @@ namespace copyApp.Model
                     }
                     break;
                 case ProcessState.WaitingT2Response:
-                    if (cmdType == "T2")
+                    if (cmdType == "T2" && result == "OK")
                     {
                         _currentState = ProcessState.WaitingT3Response;
                         OnLogOccurred("T2 단계 완료. T3 단계로 진행합니다.");
+                        StartT3Process();
                     }
                     break; 
                 case ProcessState.WaitingT3Response:
-                    if (cmdType == "T3")
+                    if (cmdType == "T3" && result == "OK")
                     {
                         _currentState = ProcessState.Idle;
+                        ProcessCompleted?.Invoke(this, _barcode);
                         OnLogOccurred("T3 단계 완료. 전체 프로세스가 성공적으로 완료되었습니다.");
                     }
                     break;
@@ -295,7 +297,7 @@ namespace copyApp.Model
             OnLogOccurred("T2 전송 완료. 서버 응답 대기 중...");
         }
 
-        public void StartT3Process(string tempSv, string tempPv)
+        public void StartT3Process()
         {
             string svStr = string.Join(",", _sv);
             string pvStr = string.Join(",", _pv);
@@ -303,7 +305,7 @@ namespace copyApp.Model
 
             TempCount = _pv.Length;
 
-            _currentState = ProcessState.WaitingT2Response;
+            _currentState = ProcessState.WaitingT3Response;
             string payload = string.Join(DELIM, "T3", _barcode, _recipe, _eqpId, _side, TempCount.ToString("00"), sv);
             Send(payload);
             OnLogOccurred("T3 전송 완료. 서버 응답 대기 중...");
