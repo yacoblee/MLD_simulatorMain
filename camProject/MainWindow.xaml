@@ -1,0 +1,159 @@
+<Window x:Class="camProject.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:camProject"
+        mc:Ignorable="d"
+        Title="camProject" Height="620" Width="1100">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ============ 좌측: 연결 설정 폼 — copyApp MainView.cs 좌측 패널 이식 ============ -->
+        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+
+            <!-- 상단 통신 모드 토글 — copyApp의 Tcp/Seri 라디오 -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <RadioButton x:Name="tcpModeRadio" Content="TCP" GroupName="commMode" IsChecked="True"
+                             Checked="CommMode_Changed" Margin="0,0,16,0"/>
+                <RadioButton x:Name="serialModeRadio" Content="Serial" GroupName="commMode"
+                             Checked="CommMode_Changed"/>
+            </StackPanel>
+
+            <!-- ===== TCP 패널 — copyApp: 바코드/IP/포트/TimeOut/RetryCount/Receipe/active-passive/연결·전송·SV저장 ===== -->
+            <StackPanel x:Name="tcpPanel">
+                <TextBlock Text="바코드" FontWeight="Bold"/>
+                <Grid Margin="0,4,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="barTxt" Grid.Column="0" Margin="0,0,8,0"/>
+                    <Button x:Name="barInputBtn" Grid.Column="1" Content="입력" Width="60" Click="BarInputBtn_Click"/>
+                </Grid>
+
+                <TextBlock Text="IP" FontWeight="Bold"/>
+                <TextBox x:Name="ipTxt" Text="127.0.0.1" Margin="0,4,0,12"/>
+
+                <TextBlock Text="포트" FontWeight="Bold"/>
+                <TextBox x:Name="portTxt" Text="8000" Margin="0,4,0,12"/>
+
+                <TextBlock Text="Time Out" FontWeight="Bold"/>
+                <TextBox x:Name="timeTxt" Text="1000" Margin="0,4,0,12"/>
+
+                <TextBlock Text="Retry Count" FontWeight="Bold"/>
+                <TextBox x:Name="retryTxt" Text="2" Margin="0,4,0,12"/>
+
+                <TextBlock Text="Receipe" FontWeight="Bold"/>
+                <ComboBox x:Name="registBox" Margin="0,4,0,12"
+                          SelectionChanged="RegistBox_SelectionChanged"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <RadioButton x:Name="activeRadio" Content="active" GroupName="tcpRole" Margin="0,0,16,0"/>
+                    <RadioButton x:Name="passiveRadio" Content="passive" GroupName="tcpRole" IsChecked="True"/>
+                </StackPanel>
+
+                <UniformGrid Rows="1" Columns="3">
+                    <Button x:Name="tcpConnBtn" Content="연결해제" Margin="0,0,4,0" Click="TcpConnBtn_Click"/>
+                    <Button x:Name="tcpSendBtn" Content="전송" Margin="4,0,4,0" Click="TcpSendBtn_Click"/>
+                    <Button x:Name="svSaveBtn" Content="SV 저장" Margin="4,0,0,0" Click="SvSaveBtn_Click"/>
+                </UniformGrid>
+            </StackPanel>
+
+            <!-- ===== Serial 패널 — copyApp: 포트/통신속도/페리티비트/데이터길이/정지비트/프로토콜/저장·연결·전송 ===== -->
+            <StackPanel x:Name="serialPanel" Visibility="Collapsed">
+                <TextBlock Text="포트" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbPort" Margin="0,4,0,12"/>
+
+                <TextBlock Text="통신속도" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbSpeed" Margin="0,4,0,12" SelectedIndex="0">
+                    <ComboBoxItem Content="9600"/>
+                    <ComboBoxItem Content="19200"/>
+                    <ComboBoxItem Content="38400"/>
+                    <ComboBoxItem Content="57600"/>
+                    <ComboBoxItem Content="115200"/>
+                </ComboBox>
+
+                <TextBlock Text="페리티비트" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbBit" Margin="0,4,0,12" SelectedIndex="0">
+                    <ComboBoxItem Content="None"/>
+                    <ComboBoxItem Content="Odd"/>
+                    <ComboBoxItem Content="Even"/>
+                </ComboBox>
+
+                <TextBlock Text="데이터길이" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbLength" Margin="0,4,0,12" SelectedIndex="1">
+                    <ComboBoxItem Content="7"/>
+                    <ComboBoxItem Content="8"/>
+                </ComboBox>
+
+                <TextBlock Text="정지비트" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbStopBit" Margin="0,4,0,12" SelectedIndex="0">
+                    <ComboBoxItem Content="One"/>
+                    <ComboBoxItem Content="Two"/>
+                </ComboBox>
+
+                <TextBlock Text="프로토콜" FontWeight="Bold"/>
+                <ComboBox x:Name="cmbProtocol" Margin="0,4,0,12" SelectedIndex="0">
+                    <ComboBoxItem Content="MODBUS ASCII"/>
+                    <ComboBoxItem Content="MODBUS RTU"/>
+                </ComboBox>
+
+                <UniformGrid Rows="1" Columns="3">
+                    <Button x:Name="saveBtn" Content="저장" Margin="0,0,4,0" Click="SaveBtn_Click"/>
+                    <Button x:Name="connBtn" Content="연결해제" Margin="4,0,4,0" Click="ConnBtn_Click"/>
+                    <Button x:Name="serialSendBtn" Content="전송" Margin="4,0,0,0" Click="SerialSendBtn_Click"/>
+                </UniformGrid>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- ============ 우측: PV/SV 온도 그리드 + 로그 — copyApp dataGridView1 / textLog 이식 ============ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- PV/SV는 DataGrid 대신 수동 Grid로 구성 — copyApp의 셀 단위 SetPvRow/GetSvValues 방식과 동일한 형태 유지 -->
+            <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
+                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
+                    <Border Grid.Row="0" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV3" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
+                    <Border Grid.Row="0" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1"><TextBlock Text="PV4" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
+
+                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,1" Background="#FFF0F0F0"><TextBlock Text="now Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/></Border>
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv1Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                    <Border Grid.Row="1" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv2Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                    <Border Grid.Row="1" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv3Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                    <Border Grid.Row="1" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1"><TextBlock x:Name="pv4Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+
+                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,0" Background="#FFF0F0F0"><TextBlock Text="set Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/></Border>
+                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv1Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
+                    <Border Grid.Row="2" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv2Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
+                    <Border Grid.Row="2" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv3Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
+                    <Border Grid.Row="2" Grid.Column="4" BorderBrush="Gray" BorderThickness="0"><TextBox x:Name="sv4Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
+                </Grid>
+            </Border>
+
+            <!-- 로그 — copyApp textLog(AppendText) 대신 ListBox. ObservableCollection 바인딩은 Model 이식 단계에서 추가 -->
+            <ListBox x:Name="logList" Grid.Row="1" FontFamily="Consolas" FontSize="12"/>
+        </Grid>
+    </Grid>
+</Window>
