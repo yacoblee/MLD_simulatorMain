@@ -1,16 +1,79 @@
+using System.IO;
+using System.Text;
+
 namespace camProject.Model
 {
-    // 이식 대상: copyApp/Conf/ProtocolFIle.cs — Serial 연결 설정(포트/속도/패리티 등) 저장/로드
-    //
-    // 필요한 멤버:
-    //   - PortName, BaudRateIndex, ParityIndex, BitIndex, LengthIndex, StopBitsIndex, ProtocolIndex 프로퍼티
-    //   - void Save()
-    //   - static ProtocolFile Load()
-    //
-    // 포팅 시 반드시 고칠 부분 (WinForms → net8 차이):
-    //   - 원본이 Application.StartupPath(System.Windows.Forms) 사용 → WPF/net8엔 없음
-    //     AppDomain.CurrentDomain.BaseDirectory 또는 AppContext.BaseDirectory로 교체
     public class ProtocolFile
     {
+        public string PortName { get; set; } = "COM1";
+        public int BaudRateIndex { get; set; } = 0;
+        public int BitIndex { get; set; } = 0;
+        public int ParityIndex { get; set; } = 0;
+        public int LengthIndex { get; set; } = 0;
+        public int StopBitsIndex { get; set; } = 0;
+        public int ProtocolIndex { get; set; } = 0;
+
+
+        public void Save()
+        {
+            try
+            {
+                using (FileStream fs = new FileStream($"{AppContext.BaseDirectory}\\ProtocolSetting.json", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
+                    {
+                        sw.WriteLine($"{PortName}");
+                        sw.WriteLine($"{BaudRateIndex}");
+                        sw.WriteLine($"{ParityIndex}");
+                        sw.WriteLine($"{BitIndex}");
+                        sw.WriteLine($"{LengthIndex}");
+                        sw.WriteLine($"{StopBitsIndex}");
+                        sw.WriteLine($"{ProtocolIndex}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+
+
+        public static ProtocolFile Load()
+        {
+
+            ProtocolFile protocolFIle = new ProtocolFile();
+
+            FileInfo fileInfo = new FileInfo($"{AppContext.BaseDirectory}\\ProtocolSetting.json");
+            if (!fileInfo.Exists)
+            {
+                protocolFIle.Save();
+                return protocolFIle;
+            }
+            using (FileStream fs = new FileStream($"{AppContext.BaseDirectory}\\ProtocolSetting.json", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
+                {
+                    int ReadInt() => int.TryParse(sr.ReadLine(), out int v) ? v : 0;
+
+                    protocolFIle.PortName = sr.ReadLine() ?? "COM8";
+                    protocolFIle.BaudRateIndex = ReadInt();
+                    protocolFIle.ParityIndex = ReadInt();
+                    protocolFIle.BitIndex = ReadInt();
+                    protocolFIle.LengthIndex = ReadInt();
+                    protocolFIle.StopBitsIndex = ReadInt();
+                    protocolFIle.ProtocolIndex = ReadInt();
+                }
+            }
+
+            return protocolFIle;
+
+
+
+        }
+
+
+
     }
 }
