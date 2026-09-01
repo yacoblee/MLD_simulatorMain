@@ -1,3 +1,12 @@
+using camProject.Comm;
+using camProject.Model;
+using OpenCvSharp;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
+
 namespace camProject.ViewModel
 {
     // copyApp에는 대응 파일 없음 — MainView.cs의 로직을 UI 비의존 형태로 옮겨받는 새 계층
@@ -27,7 +36,36 @@ namespace camProject.ViewModel
     //   - 생성자에서 DataContext = new MainViewModel();
     //   - XAML을 x:Name 기반 코드비하인드 접근 대신 Text="{Binding Ip}" 등 바인딩으로 전환
     //   - 버튼의 Click="..." 대신 Command="{Binding TcpConnectCommand}" 로 교체
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
+        Model.MainModel _mainModel = new MainModel();
+        Model.TcpModel _tcpModel = new TcpModel();
+        public ObservableCollection<string> LogEntries { get; set; } = new();
+        public ObservableCollection<int> Pv { get; } = new(new[] { 0, 0, 0, 0 });
+        public ObservableCollection<int> Sv { get; } = new(new[] { 0, 0, 0, 0 });
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        public MainViewModel()
+        {
+
+            _mainModel.TempReceived += (s, pv) =>
+                Application.Current.Dispatcher.Invoke(() => {
+                    for (int i = 0; i < pv.Length; i++)
+                    {
+                        Pv[i] = pv[i];
+                    }
+                });
+
+            SerialComm.Instance.LogOccurred += (s, msg) => LogEntries.Add($"Serial {msg}");
+            TcpComm.Instance.LogOccurred += (s, msg) => LogEntries.Add($"TCP {msg}");
+
+            
+             
+
+        }
+
+
     }
 }

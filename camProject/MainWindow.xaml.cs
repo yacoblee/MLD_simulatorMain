@@ -1,3 +1,6 @@
+using camProject.Comm;
+using camProject.ViewModel;
+using OpenCvSharp.Dnn;
 using System.IO.Ports;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,13 +13,19 @@ namespace camProject
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public MainViewModel ViewModel { get; } = new MainViewModel();
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = ViewModel;
+
+
 
             // 시스템 포트 목록만 채움(stdlib 호출) — 나머지 콤보박스 값은 XAML에 고정 값으로 이미 채워둠
             cmbPort.ItemsSource = SerialPort.GetPortNames();
             if (cmbPort.Items.Count > 0) cmbPort.SelectedIndex = 0;
+
         }
 
         // 상단 Tcp/Seri 라디오 — 패널 표시 전환만 담당 (copyApp에는 없던 로직, WPF 이식 과정에서 추가)
@@ -44,12 +53,7 @@ namespace camProject
             // camProject: CameraModel/향후 이식할 MainModel의 GetSelectedValue 결과를 sv1~4Box에 반영
         }
 
-        private void TcpConnBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO: TCP 연결/해제 토글
-            // copyApp 대응: MainView.TcpConnBtn_Click → TcpModel.Connect / ServerConn / Disconnect
-            // active/passive 라디오(activeRadio/passiveRadio.IsChecked)로 서버·클라이언트 역할 분기 필요
-        }
+        // TcpConnBtn_Click 삭제됨 — tcpConnBtn은 이제 Command="{Binding TcpTestCommand}"로 직접 ViewModel 호출 (6단계)
 
         private void TcpSendBtn_Click(object sender, RoutedEventArgs e)
         {

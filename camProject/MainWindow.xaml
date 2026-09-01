@@ -13,8 +13,9 @@
         </Grid.ColumnDefinitions>
 
         <!-- ============ 좌측: 연결 설정 폼 — copyApp MainView.cs 좌측 패널 이식 ============ -->
-        <StackPanel Grid.Column="0" Margin="0,0,16,0">
-
+        <StackPanel Grid.Column="0" Margin="6,10,10,-10">
+            <TextBox HorizontalAlignment="Center" Height="29" 
+          Text="MES 프로그램" FontSize="20" FontWeight="Bold" Width="302" RenderTransformOrigin="0.506,0.515"/>
             <!-- 상단 통신 모드 토글 — copyApp의 Tcp/Seri 라디오 -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <RadioButton x:Name="tcpModeRadio" Content="TCP" GroupName="commMode" IsChecked="True"
@@ -57,7 +58,7 @@
                 </StackPanel>
 
                 <UniformGrid Rows="1" Columns="3">
-                    <Button x:Name="tcpConnBtn" Content="연결해제" Margin="0,0,4,0" Click="TcpConnBtn_Click"/>
+                    <Button x:Name="tcpConnBtn" Command="{Binding TcpTestCommand}" Content="연결해제" Margin="0,0,4,0"/>
                     <Button x:Name="tcpSendBtn" Content="전송" Margin="4,0,4,0" Click="TcpSendBtn_Click"/>
                     <Button x:Name="svSaveBtn" Content="SV 저장" Margin="4,0,0,0" Click="SvSaveBtn_Click"/>
                 </UniformGrid>
@@ -94,6 +95,7 @@
                 <ComboBox x:Name="cmbStopBit" Margin="0,4,0,12" SelectedIndex="0">
                     <ComboBoxItem Content="One"/>
                     <ComboBoxItem Content="Two"/>
+                    <ComboBoxItem Content="OnePointFive"/>
                 </ComboBox>
 
                 <TextBlock Text="프로토콜" FontWeight="Bold"/>
@@ -111,7 +113,7 @@
         </StackPanel>
 
         <!-- ============ 우측: PV/SV 온도 그리드 + 로그 — copyApp dataGridView1 / textLog 이식 ============ -->
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Margin="0,40,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -133,27 +135,56 @@
                         <RowDefinition Height="32"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
-                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
-                    <Border Grid.Row="0" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock Text="PV3" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
-                    <Border Grid.Row="0" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1"><TextBlock Text="PV4" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/></Border>
+                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock Text="PV1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock Text="PV2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock Text="PV3" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                        <TextBlock Text="PV4" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
 
-                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,1" Background="#FFF0F0F0"><TextBlock Text="now Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/></Border>
-                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv1Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                    <Border Grid.Row="1" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv2Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                    <Border Grid.Row="1" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1"><TextBlock x:Name="pv3Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                    <Border Grid.Row="1" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1"><TextBlock x:Name="pv4Text" Text="0" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,1" Background="#FFF0F0F0">
+                        <TextBlock Text="now Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock x:Name="pv1Text" Text="{Binding Pv[0]}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock x:Name="pv2Text" Text="{Binding Pv[1]}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                        <TextBlock x:Name="pv3Text" Text="{Binding Pv[2]}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="4" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                        <TextBlock x:Name="pv4Text" Text="{Binding Pv[3]}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
 
-                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,0" Background="#FFF0F0F0"><TextBlock Text="set Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/></Border>
-                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv1Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
-                    <Border Grid.Row="2" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv2Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
-                    <Border Grid.Row="2" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,0"><TextBox x:Name="sv3Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
-                    <Border Grid.Row="2" Grid.Column="4" BorderBrush="Gray" BorderThickness="0"><TextBox x:Name="sv4Box" Text="0" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/></Border>
+                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="Gray" BorderThickness="0,0,1,0" Background="#FFF0F0F0">
+                        <TextBlock Text="set Temp" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,1,0">
+                        <TextBox x:Name="sv1Box" Text="{Binding Sv[0], Mode=TwoWay}" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="2" BorderBrush="Gray" BorderThickness="0,0,1,0">
+                        <TextBox x:Name="sv2Box" Text="{Binding Sv[1], Mode=TwoWay}" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,0">
+                        <TextBox x:Name="sv3Box" Text="{Binding Sv[2], Mode=TwoWay}" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="4" BorderBrush="Gray" BorderThickness="0">
+                        <TextBox x:Name="sv4Box" Text="{Binding Sv[3], Mode=TwoWay}" BorderThickness="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Border>
                 </Grid>
             </Border>
 
             <!-- 로그 — copyApp textLog(AppendText) 대신 ListBox. ObservableCollection 바인딩은 Model 이식 단계에서 추가 -->
-            <ListBox x:Name="logList" Grid.Row="1" FontFamily="Consolas" FontSize="12"/>
+            <ListBox x:Name="logList" ItemsSource="{Binding LogEntries}" Grid.Row="1" FontFamily="Consolas" FontSize="12" Margin="0,0,0,29"/>
         </Grid>
+
     </Grid>
 </Window>

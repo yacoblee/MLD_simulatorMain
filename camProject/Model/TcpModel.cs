@@ -24,5 +24,7 @@ namespace camProject.Model
     // async 구조(SendAndWaitAsync + TaskCompletionSource)로 재작성하면 위 버그들이 구조적으로 사라짐.
     public class TcpModel
     {
+
+
     }
 }
