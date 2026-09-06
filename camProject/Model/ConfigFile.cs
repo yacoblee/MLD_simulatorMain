@@ -13,7 +13,7 @@ namespace camProject.Model
         {
             try
             {
-                string dir = Path.GetDirectoryName(path);
+                string dir = Path.GetDirectoryName(path) ?? "C:\\";
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);

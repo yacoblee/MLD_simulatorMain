@@ -14,8 +14,17 @@
 
         <!-- ============ 좌측: 연결 설정 폼 — copyApp MainView.cs 좌측 패널 이식 ============ -->
         <StackPanel Grid.Column="0" Margin="6,10,10,-10">
-            <TextBox HorizontalAlignment="Center" Height="29" 
-          Text="MES 프로그램" FontSize="20" FontWeight="Bold" Width="302" RenderTransformOrigin="0.506,0.515"/>
+            <TextBlock HorizontalAlignment="Center" Height="29" 
+          Text="MES 프로그램" FontSize="20" FontWeight="Bold" Width="302" RenderTransformOrigin="1,0" Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform X="0"/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
+            </TextBlock>
             <!-- 상단 통신 모드 토글 — copyApp의 Tcp/Seri 라디오 -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <RadioButton x:Name="tcpModeRadio" Content="TCP" GroupName="commMode" IsChecked="True"
@@ -50,7 +59,8 @@
 
                 <TextBlock Text="Receipe" FontWeight="Bold"/>
                 <ComboBox x:Name="registBox" Margin="0,4,0,12"
-                          SelectionChanged="RegistBox_SelectionChanged"/>
+                          ItemsSource="{Binding RecipeList}"
+                          SelectedItem="{Binding SelectRecipe, Mode=TwoWay}"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                     <RadioButton x:Name="activeRadio" Content="active" GroupName="tcpRole" Margin="0,0,16,0"/>
@@ -58,7 +68,7 @@
                 </StackPanel>
 
                 <UniformGrid Rows="1" Columns="3">
-                    <Button x:Name="tcpConnBtn" Command="{Binding TcpTestCommand}" Content="연결해제" Margin="0,0,4,0"/>
+                    <Button x:Name="tcpConnBtn" Content="{Binding TcpButtonText}" Margin="0,0,4,0" Click="TcpConnBtn_Click"/>
                     <Button x:Name="tcpSendBtn" Content="전송" Margin="4,0,4,0" Click="TcpSendBtn_Click"/>
                     <Button x:Name="svSaveBtn" Content="SV 저장" Margin="4,0,0,0" Click="SvSaveBtn_Click"/>
                 </UniformGrid>
@@ -106,8 +116,10 @@
 
                 <UniformGrid Rows="1" Columns="3">
                     <Button x:Name="saveBtn" Content="저장" Margin="0,0,4,0" Click="SaveBtn_Click"/>
-                    <Button x:Name="connBtn" Content="연결해제" Margin="4,0,4,0" Click="ConnBtn_Click"/>
+                    <Button x:Name="connBtn" Content="{Binding SerialButtonText}" Margin="4,0,4,0" Click="ConnBtn_Click"/>
+                    <!--
                     <Button x:Name="serialSendBtn" Content="전송" Margin="4,0,0,0" Click="SerialSendBtn_Click"/>
+                    -->
                 </UniformGrid>
             </StackPanel>
         </StackPanel>
@@ -183,7 +195,14 @@
             </Border>
 
             <!-- 로그 — copyApp textLog(AppendText) 대신 ListBox. ObservableCollection 바인딩은 Model 이식 단계에서 추가 -->
-            <ListBox x:Name="logList" ItemsSource="{Binding LogEntries}" Grid.Row="1" FontFamily="Consolas" FontSize="12" Margin="0,0,0,29"/>
+            <ListBox x:Name="logList" ItemsSource="{Binding LogEntries}" Grid.Row="1" FontFamily="Consolas" FontSize="12" Margin="0,0,0,29">
+                <ListBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="White" Offset="1"/>
+                        <GradientStop Color="#FFEAEAEA" Offset="0"/>
+                    </LinearGradientBrush>
+                </ListBox.Background>
+            </ListBox>
         </Grid>
 
     </Grid>

@@ -28,12 +28,17 @@ namespace camProject.Comm
         private SerialPort _serial = new SerialPort();
         private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
         private const byte STX = 0x02;
+        private string _rxBuffer = "";
+        private const int MaxRetry = 3;
+        private int _rtyCnt = MaxRetry;
 
+        public event EventHandler? Disconnected;
         public event EventHandler<string> DataReceived;
         public event EventHandler<string> LogOccurred;
         public event EventHandler Connected;
         public bool IsOpen => _serial.IsOpen;
         private CancellationTokenSource? _healthCts;
+        private TaskCompletionSource<string>? _healthTcs;
         private Task? _health;
 
 
@@ -50,9 +55,21 @@ namespace camProject.Comm
                 byte[] data = new byte[bylen];
                 _serial.Read(data, 0, bylen);
 
-                string text = Encoding.UTF8.GetString(data);
+                _rxBuffer = Encoding.UTF8.GetString(data);
+                
                 _rxSignal.Set();
-                DataReceived?.Invoke(this, text);
+                while (_rxBuffer.Contains("\n"))
+                {
+                    int idx = _rxBuffer.IndexOf("\n");
+                    string frame = _rxBuffer.Substring(0, idx);
+                    _rxBuffer = _rxBuffer.Substring(idx + 1);
+
+                    string clean = frame.Replace("\u0002", "").Replace("\r", "").Trim();
+                    if (string.IsNullOrWhiteSpace(clean)) continue;
+
+                    _healthTcs?.TrySetResult(clean);
+                    DataReceived?.Invoke(this, clean);
+                }
             } catch (Exception ex) { 
                 OnLogOccurred($"수신 오류: {ex.Message}"); 
             }
@@ -64,6 +81,7 @@ namespace camProject.Comm
             try
             {
                 if (_serial.IsOpen) _serial.Close();
+
 
                 _serial.PortName = portName;
                 _serial.BaudRate = baudRate;
@@ -101,40 +119,59 @@ namespace camProject.Comm
             _serial.Write(framed, 0, framed.Length);
 
         }
-        private async Task sendAsyncPackage()
+        private async Task<bool> sendAsyncPackage(string payload)
         {
-            if (_serial == null || !_serial.IsOpen) return;
+            if (_serial == null || !_serial.IsOpen) return false;
 
             try
             {
-                byte[] box = Encoding.ASCII.GetBytes("CHECK");
+                var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _healthTcs = tcs;
+
+                byte[] box = Encoding.ASCII.GetBytes(payload);
                 byte[] pingPacket = new byte[box.Length + 3];
-                pingPacket[1] = STX;
-                Array.Copy(box, 0, pingPacket, 1, pingPacket.Length);
+
+                pingPacket[0] = STX;
+                Array.Copy(box, 0, pingPacket, 1, box.Length);             
                 pingPacket[pingPacket.Length - 2] = 0x0D; // CR
                 pingPacket[pingPacket.Length - 1] = 0x0A; // LF 
 
                 await _serial.BaseStream.WriteAsync(pingPacket, 0, pingPacket.Length);
                 await _serial.BaseStream.FlushAsync();
+
+                var completed = await Task.WhenAny(tcs.Task, Task.Delay(2000));
+                _healthTcs = null;
+
+                if (completed != tcs.Task) return false;
+                string[] parts = tcs.Task.Result.Split(',');
+                return parts.Length >= 2 && parts[1].Trim() == "OK";
             }
             catch (Exception ex)
             {
                 OnLogOccurred($"장비 체크 데이터 전송 실패{ex.ToString}");
+                return false;
             }
         }
 
+        //public void Disconnect()
+        //{
+        //    _healthCts?.Cancel();
+        //    _healthCts?.Dispose();
+        //    _healthCts = null;
+
+        //    _serial.Close();
+
+        //}
         public void Disconnect()
         {
             _healthCts?.Cancel();
             _healthCts?.Dispose();
             _healthCts = null;
 
-            if (_serial != null && _serial.IsOpen)
-            {
-                _serial.Close();
-            }
+            bool wasOpen = _serial.IsOpen;
+            if (wasOpen) _serial.Close();
+            if (wasOpen) Disconnected?.Invoke(this, EventArgs.Empty);   // 추가
         }
-
         public void CheckTemp()
         {
             if (!_serial.IsOpen) return;
@@ -153,15 +190,29 @@ namespace camProject.Comm
 
             _health = Task.Run( async () =>
             {
-                using var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+                using var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
 
                 try
                 {
-                    while (await periodicTimer.WaitForNextTickAsync(token))
+                    while (await timer.WaitForNextTickAsync(token))
                     {
                         if (!_serial.IsOpen) break;
 
-                        await sendAsyncPackage();
+                        bool ok = await sendAsyncPackage("CHECK");
+
+                        if (ok) { _rtyCnt = MaxRetry; continue; }
+
+                        _rtyCnt--;
+                        OnLogOccurred($"헬스체크 실패 — 재시도 현황 {_rtyCnt}/{MaxRetry}");
+
+                        if (_rtyCnt <= 0)
+                        {
+                            OnLogOccurred("장비 연결 끊김 확인 — 연결 해제합니다.");
+                            Disconnect();
+                            break;
+                        }
+
+
                     }
                 }
                 catch (Exception ex)

@@ -18,7 +18,7 @@ namespace camProject.Comm
         private Thread _rxThread;
 
         private volatile bool _connected;
-
+        public bool IsConnected => _connected;
         private const byte STX = 0x02;
         private const byte ETX = 0x03;
         private string _rxBuffer = "";
@@ -30,7 +30,7 @@ namespace camProject.Comm
 
         private TcpComm() { }
 
-        public async Task<bool> Connect(string ip, int port)
+        public async Task<bool> Connect(string ip, int port, int timeOutCnt, int retryCnt)
         {
             try
             {
@@ -43,9 +43,11 @@ namespace camProject.Comm
                 _connected = true;
 
                 _rxThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "TCP-Client-RX" };
-                _rxThread.Start();
 
+
+                _rxThread.Start();
                 Connected?.Invoke(this, EventArgs.Empty);
+                OnLogOccurred($"TCP 연결 성공 IP : {ip}");
                 
                 return true;
             }
@@ -119,6 +121,7 @@ namespace camProject.Comm
         private void OnLogOccurred(string message) => LogOccurred?.Invoke(this, message);
 
         public void Disconnect() {
+            OnLogOccurred($"TCP 연결 종료");
             _connected = false;
             try { _stream?.Close(); } catch { }
             try { _client?.Close(); } catch { }
