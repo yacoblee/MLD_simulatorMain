@@ -8,10 +8,6 @@ using System.Windows.Controls;
 
 namespace camProject
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// UI 이식 단계 — 이벤트 핸들러는 가이드라인 주석만 포함. Model/ViewModel 연결은 다음 단계에서 진행.
-    /// </summary>
     public partial class MainWindow : Window
     {
 
@@ -21,7 +17,6 @@ namespace camProject
             InitializeComponent();
             DataContext = ViewModel;
 
-            // 시스템 포트 목록만 채움(stdlib 호출) — 나머지 콤보박스 값은 XAML에 고정 값으로 이미 채워둠
             cmbPort.ItemsSource = SerialPort.GetPortNames();
             if (cmbPort.Items.Count > 0) cmbPort.SelectedIndex = 0;
 
@@ -48,8 +43,8 @@ namespace camProject
 
         private void TcpSendBtn_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: T1 시작 전송
             // copyApp 대응: MainView.tcpSend_Click → TcpModel.StartT1Process(barcode, recipe, eqpId, side)
+            ViewModel.TcpSend(barTxt.Text, registBox.Text, "EQUIP1", "Front");
         }
 
         private void SvSaveBtn_Click(object sender, RoutedEventArgs e)

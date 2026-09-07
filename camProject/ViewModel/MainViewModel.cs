@@ -13,11 +13,9 @@ namespace camProject.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-
-
-
         Model.MainModel _mainModel = new MainModel();
         Model.TcpModel _tcpModel = new TcpModel();
+
         private readonly object _logLock = new();
         public ObservableCollection<string> LogEntries { get; set; } = new();
         public ObservableCollection<int> Pv { get; } = new(new[] { 0, 0, 0, 0 });
@@ -37,7 +35,7 @@ namespace camProject.ViewModel
         public string SerialButtonText
         {
             get => _serialButtonText;
-            set { _serialButtonText = value; OnPropertyChanged(); }   // 이제 실제로 알림 나감
+            set { _serialButtonText = value; OnPropertyChanged(); }
         }
 
         public string TcpButtonText
@@ -62,7 +60,6 @@ namespace camProject.ViewModel
         }
         public MainViewModel()
         {
-
             BindingOperations.EnableCollectionSynchronization(LogEntries, new object());
             _mainModel.TempReceived += (s, pv) =>
                 Application.Current.Dispatcher.Invoke(() =>
@@ -76,8 +73,11 @@ namespace camProject.ViewModel
             _tcpModel.Connected += (s, e) => Application.Current.Dispatcher.Invoke(() => TcpButtonText = "연결해제");
             _tcpModel.Disconnected += (s, e) => Application.Current.Dispatcher.Invoke(() => TcpButtonText = "연결");
 
-            SerialComm.Instance.LogOccurred += (s, msg) => LogEntries.Add($"Serial {msg}");
-            TcpComm.Instance.LogOccurred += (s, msg) => LogEntries.Add($"TCP {msg}");
+            _mainModel.LogOccurred += (s, msg) => LogEntries.Add($"Serial {msg}");
+            _tcpModel.LogOccurred += (s, msg) => LogEntries.Add($"TCP {msg}");
+
+            LoadRecipeList();
+            if (RecipeList.Count > 0) SelectRecipe = RecipeList[0];   // 첫 번째 레시피 자동 선택
         }
 
          public void LoadRecipeList()
@@ -125,6 +125,28 @@ namespace camProject.ViewModel
             } else
             {
                 return false;
+            }
+        }
+
+        public void TcpSend(string barcode)
+        {
+            if (_tcpModel.IsConnected)
+            {
+                try
+                {
+                    int[] pv = Pv.ToArray();
+                    int[] sv = Sv.ToArray();
+                    string recipe = _selectRecipe ?? "Default";
+
+                    _tcpModel.StartT1Process(barcode, recipe, "TEST1", "Front", pv, sv);
+                } catch (Exception ex)
+                {
+                    MessageBox.Show($"데이터 전송 중 오류 발생: {ex.Message}", "오류");
+                }
+            }
+            else
+            {
+                MessageBox.Show($"TCP 연결 상태가 아닙니다.");
             }
         }
     }
