@@ -60,7 +60,18 @@ namespace camProject.Model
             return result;
         }
 
+        public async Task<int[]?> WaitFirstTempAsync(int timeoutMs)
+        {
+            var tcs = new TaskCompletionSource<int[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            EventHandler<int[]>? handler = null;
+            handler = (s, t) => { TempReceived -= handler; tcs.TrySetResult(t); };
+            TempReceived += handler;
 
+            SerialComm.Instance.CheckTemp();
+            var done = await Task.WhenAny(tcs.Task, Task.Delay(timeoutMs));
+            TempReceived -= handler;
+            return done == tcs.Task ? tcs.Task.Result : null;
+        }
 
         public int[] GetSelectedValue(string fileName) {
             if (string.IsNullOrEmpty(fileName)) return Array.Empty<int>();

@@ -27,7 +27,8 @@ namespace camProject.ViewModel
 
         private string _serialButtonText = "연결";
         private string _tcpButtonText = "연결";
-
+        private string _barcode = "";
+        private int _readyPending;
         private void OnPropertyChanged([CallerMemberName] string? name = null) => 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -44,6 +45,11 @@ namespace camProject.ViewModel
             set { _tcpButtonText = value; OnPropertyChanged(); }
         }
 
+        public string ReceiveBarcode(string barcode)
+        {
+            _barcode = barcode;
+            return _barcode;
+        }
         public string? SelectRecipe
         {
             get => _selectRecipe;
@@ -68,6 +74,8 @@ namespace camProject.ViewModel
                     {
                         Pv[i] = pv[i];
                     }
+                    if (!_mainModel.IsOpen) { LogEntries.Add("Serial 장비 미연결 - 구동 명령 전송 불가"); return; }
+                    _mainModel.SendFramed(string.Join(",", _barcode, ":SWITCH:ON?"));
                 });
             _mainModel.Disconnected += (s, e) => Application.Current.Dispatcher.Invoke(() => SerialButtonText = "연결");
             _tcpModel.Connected += (s, e) => Application.Current.Dispatcher.Invoke(() => TcpButtonText = "연결해제");
@@ -78,6 +86,13 @@ namespace camProject.ViewModel
 
             LoadRecipeList();
             if (RecipeList.Count > 0) SelectRecipe = RecipeList[0];
+
+
+            _tcpModel.ProcessCompleted += (s, barcode) =>
+            {
+                if (!_mainModel.IsOpen) { LogEntries.Add("Serial 장비 미연결 - 구동 명령 전송 불가"); return; }
+                _mainModel.SendFramed(string.Join(",", barcode, ":SWITCH2:ON?"));
+            };
         }
 
          public void LoadRecipeList()
@@ -94,20 +109,29 @@ namespace camProject.ViewModel
             _mainModel.SaveSv(Sv.ToArray(), path);
             LoadRecipeList();
         }
-        public void ToggleSerialConnect(string port, int baud, Parity parity, int dataBits, StopBits stopBits)
+
+
+        public async Task<bool> ToggleSerialConnect(string port, int baud, Parity parity, int dataBits, StopBits stopBits)
         {
             if (_mainModel.IsOpen)
             {
                 _mainModel.DisConnect(); 
-                return;
+                return false;
             }
-
             bool ok = _mainModel.Connect(port, baud, parity, dataBits, stopBits);
-            if (ok)
+
+      
+                //int[]? first = await _mainModel.WaitFirstTempAsync(3000);
+            if (!ok)
             {
-                SerialButtonText = "연결해제";
-                _mainModel.PollingTemp();
+                LogEntries.Add("Serial 장비 응답 없음(3초) - 연결을 해제합니다");
+                _mainModel.DisConnect();
+                return false;
             }
+            SerialButtonText = "연결해제";
+            _mainModel.PollingTemp();
+            return true;
+
         }
 
         public async Task<bool> TcpConnect(string ip, int port, int timeOutCnt, int retryCnt)
@@ -149,5 +173,7 @@ namespace camProject.ViewModel
                 MessageBox.Show($"TCP 연결 상태가 아닙니다.");
             }
         }
+
+
     }
 }

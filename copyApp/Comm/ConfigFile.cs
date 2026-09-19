@@ -5,12 +5,10 @@ using Newtonsoft.Json;
 
 namespace copyApp.Comm
 {
-    // 레시피 1개 = SV 값 배열. 파일 하나당 이 객체 하나를 json으로 저장.
     public class ConfigFile
     {
         public int[] SelectedValue { get; set; } = Array.Empty<int>();
 
-        // 지정 경로에 저장
         public bool Save(string path)
         {
             try
@@ -30,7 +28,6 @@ namespace copyApp.Comm
             }
         }
 
-        // 지정 경로에서 로드
         public static ConfigFile Load(string path)
         {
             try

@@ -44,6 +44,7 @@ namespace camProject
 
         private void BarInputBtn_Click(object sender, RoutedEventArgs e)
         {
+            ViewModel.ReceiveBarcode( barTxt.Text);
             // TODO: 바코드 확정 처리
             // copyApp 대응 없음 — barTxt.Text 확정 시점에 필요하면 여기서 검증(빈 값 등) 후 상태 저장
         }
@@ -75,15 +76,20 @@ namespace camProject
             // copyApp 대응: MainView.saveBtn_Click → MainModel.Config.* 세팅 후 MainModel.Save()
         }
 
-        private void ConnBtn_Click(object sender, RoutedEventArgs e)
+        private async void ConnBtn_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.ToggleSerialConnect(
+            bool ok = await ViewModel.ToggleSerialConnect(
                 cmbPort.Text,
                 int.Parse((cmbSpeed.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "9600"),
                 Enum.Parse<Parity>((cmbBit.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "None"),
                 int.Parse((cmbLength.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "8"),
                 Enum.Parse<StopBits>((cmbStopBit.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "ONE")
             );
+
+        }
+
+        private void serialBtn_Click()
+        {
 
         }
 

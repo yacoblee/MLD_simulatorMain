@@ -1,12 +1,14 @@
+using DirectShowLib;
+using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using DirectShowLib;
-using OpenCvSharp;
-using OpenCvSharp.WpfExtensions;
+using testCam.Comm;
 
 namespace testCam;
 
@@ -19,6 +21,11 @@ public partial class MainWindow : System.Windows.Window
     private OpenCvSharp.Point? _dragStart;
     private OpenCvSharp.Rect? _roi;
 
+    private readonly TcpServerComm _server = new TcpServerComm();
+
+    public event EventHandler<string>? DataReceived;
+
+
     public MainWindow()
     {
         InitializeComponent();
@@ -27,7 +34,88 @@ public partial class MainWindow : System.Windows.Window
         cameraImage.MouseLeftButtonDown += CameraImage_MouseLeftButtonDown;
         cameraImage.MouseMove += CameraImage_MouseMove;
         cameraImage.MouseLeftButtonUp += CameraImage_MouseLeftButtonUp;
+        _server.ClientConnected += TcpClient_staus;
+        _server.ClientDisconnected += TcpClient_staus;
+        _server.DataReceived += OnDataReceived;
+
     }
+
+    private void ListenBtn_Click(object sender, RoutedEventArgs e)
+    {
+
+        if (_server.IsRunning)
+        {
+            _server.Stop();
+            listenBtn.Content = "서버 시작";
+            tcpStateText.Text = "서버 중지됨";
+            clientText.Text = "클라이언트: 없음";
+        }
+        else { 
+            string ip = ipTxt.Text.Trim();
+
+            if(string.IsNullOrEmpty(ip) || !int.TryParse(portTxt.Text.Trim(), out int port) || port <= 0 || port > 65535)
+            {
+                MessageBox.Show("IP 주소와 포트를 올바르게 입력하세요.");
+                return;
+            }
+
+            bool result = _server.Start(ip,port);
+
+            if(!result)
+            {
+                MessageBox.Show("서버를 시작하지 못했습니다.");
+            } else
+            {
+                tcpStateText.Text = $"서버 시작됨: {ip}:{port}";
+                listenBtn.Content = "서버 중지";
+            }
+
+        
+        }
+
+
+    }
+
+    private void TcpClient_staus(object sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (_server.IsClientConnected)
+                clientText.Text = "클라이언트: 연결됨";
+            else
+                clientText.Text = "클라이언트: 없음";
+        });
+    }
+
+    public void OnDataReceived(object sender, string text)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            string[] tokens = text.Split("/");
+            if (tokens.Length < 2) { return; }
+
+            string result = tokens[tokens.Length - 1].Trim();
+
+            if (result == "OK")
+            {
+
+            }
+            else if (result == "NG")
+            {
+                SendData("CAM_NG");
+            }
+            else
+            {
+                MessageBox.Show($"알 수 없는 응답: {result}");
+            }
+        });
+    }
+
+
+    public void SendData(string data)
+    {
+        _server.Send(data);
+    }   
 
     // 화면 상 클릭 좌표(Image 컨트롤 기준) -> 실제 프레임 픽셀 좌표
     // Stretch="Uniform"이라 letterbox 여백이 생길 수 있어 스케일/오프셋 보정 필요
@@ -99,8 +187,7 @@ public partial class MainWindow : System.Windows.Window
             return;
         }
 
-        // OpenCV 기본 백엔드(MSMF 등)는 DirectShow와 열거 순서가 다를 수 있어
-        // 반드시 DSHOW 백엔드를 명시해야 위에서 찾은 인덱스와 실제 장치가 일치함
+
         var cap = new VideoCapture(index, VideoCaptureAPIs.DSHOW);
         if (!cap.IsOpened())
         {
@@ -109,20 +196,19 @@ public partial class MainWindow : System.Windows.Window
             return;
         }
         cap.Set(VideoCaptureProperties.FourCC, VideoWriter.FourCC('M', 'J', 'P', 'G'));
-        cap.Set(VideoCaptureProperties.FrameWidth, 1920);
-        cap.Set(VideoCaptureProperties.FrameHeight, 1080);
-        cap.Set(VideoCaptureProperties.Fps, 30);
+        cap.Set(VideoCaptureProperties.FrameWidth, 1024);
+        cap.Set(VideoCaptureProperties.FrameHeight, 768);
+        cap.Set(VideoCaptureProperties.Fps, 60);
 
         _capture = cap;
         statusText.Text = $"'{TargetDeviceName}' 연결됨 (DSHOW index {index})";
 
-        _timer.Interval = TimeSpan.FromMilliseconds(33);
+        _timer.Interval = TimeSpan.FromMilliseconds(16.67); // 60 FPS
         _timer.Tick += Timer_Tick;
         _timer.Start();
     }
 
-    // DirectShow 비디오 입력 장치 카테고리를 열거해 이름으로 인덱스를 찾는다.
-    // OpenCV DSHOW 백엔드가 참조하는 것과 같은 카테고리(KSCATEGORY_VIDEO_INPUT_DEVICE)라 인덱스가 그대로 대응됨.
+
     private static int FindDeviceIndexByName(string nameContains)
     {
         DsDevice[] devices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
@@ -156,6 +242,13 @@ public partial class MainWindow : System.Windows.Window
     private void MainWindow_Closed(object? sender, EventArgs e)
     {
         _timer.Stop();
-        _capture?.Release();
+        _capture?.Dispose();
+        _frame?.Dispose();
+
+
+        _server.ClientConnected -= TcpClient_staus;
+        _server.ClientDisconnected -= TcpClient_staus;
+        _server.DataReceived -= OnDataReceived;
+        _server.Dispose();
     }
 }
