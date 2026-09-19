@@ -62,7 +62,7 @@ namespace camProject.ViewModel
         {
             BindingOperations.EnableCollectionSynchronization(LogEntries, new object());
             _mainModel.TempReceived += (s, pv) =>
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     for (int i = 0; i < pv.Length; i++)
                     {
@@ -77,7 +77,7 @@ namespace camProject.ViewModel
             _tcpModel.LogOccurred += (s, msg) => LogEntries.Add($"TCP {msg}");
 
             LoadRecipeList();
-            if (RecipeList.Count > 0) SelectRecipe = RecipeList[0];   // 첫 번째 레시피 자동 선택
+            if (RecipeList.Count > 0) SelectRecipe = RecipeList[0];
         }
 
          public void LoadRecipeList()

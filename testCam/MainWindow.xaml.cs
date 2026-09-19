@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using DirectShowLib;
 using OpenCvSharp;
@@ -8,24 +10,84 @@ using OpenCvSharp.WpfExtensions;
 
 namespace testCam;
 
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// 카메라 화면 동작 확인용 테스트 프로젝트 — UI 스레드에서 DispatcherTimer로 프레임을 직접 pull.
-/// </summary>
 public partial class MainWindow : System.Windows.Window
 {
     private VideoCapture? _capture;
     private readonly Mat _frame = new Mat();
     private readonly DispatcherTimer _timer = new DispatcherTimer();
 
+    private OpenCvSharp.Point? _dragStart;
+    private OpenCvSharp.Rect? _roi;
+
     public MainWindow()
     {
         InitializeComponent();
         Loaded += MainWindow_Loaded;
         Closed += MainWindow_Closed;
+        cameraImage.MouseLeftButtonDown += CameraImage_MouseLeftButtonDown;
+        cameraImage.MouseMove += CameraImage_MouseMove;
+        cameraImage.MouseLeftButtonUp += CameraImage_MouseLeftButtonUp;
     }
 
-    private const string TargetDeviceName = "openaicam"; // 장치관리자에 표시된 OV2735 장치명(부분 일치)
+    // 화면 상 클릭 좌표(Image 컨트롤 기준) -> 실제 프레임 픽셀 좌표
+    // Stretch="Uniform"이라 letterbox 여백이 생길 수 있어 스케일/오프셋 보정 필요
+    private OpenCvSharp.Point? ToFramePoint(System.Windows.Point p)
+    {
+        if (_frame.Empty()) return null;
+        double ctrlW = cameraImage.ActualWidth;
+        double ctrlH = cameraImage.ActualHeight;
+        if (ctrlW <= 0 || ctrlH <= 0) return null;
+
+        double scale = Math.Min(ctrlW / _frame.Width, ctrlH / _frame.Height);
+        double offX = (ctrlW - _frame.Width * scale) / 2;
+        double offY = (ctrlH - _frame.Height * scale) / 2;
+
+        double x = (p.X - offX) / scale;
+        double y = (p.Y - offY) / scale;
+        if (x < 0 || y < 0 || x >= _frame.Width || y >= _frame.Height) return null;
+        return new OpenCvSharp.Point((int)x, (int)y);
+    }
+
+    private static OpenCvSharp.Rect MakeRect(OpenCvSharp.Point a, OpenCvSharp.Point b)
+    {
+        int x = Math.Min(a.X, b.X);
+        int y = Math.Min(a.Y, b.Y);
+        int w = Math.Max(1, Math.Abs(a.X - b.X));
+        int h = Math.Max(1, Math.Abs(a.Y - b.Y));
+        return new OpenCvSharp.Rect(x, y, w, h);
+    }
+
+    private static OpenCvSharp.Rect ClampRect(OpenCvSharp.Rect r, OpenCvSharp.Size size)
+    {
+        int x = Math.Max(0, Math.Min(r.X, size.Width - 1));
+        int y = Math.Max(0, Math.Min(r.Y, size.Height - 1));
+        int w = Math.Max(1, Math.Min(r.Width, size.Width - x));
+        int h = Math.Max(1, Math.Min(r.Height, size.Height - y));
+        return new OpenCvSharp.Rect(x, y, w, h);
+    }
+
+    private void CameraImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var p = ToFramePoint(e.GetPosition(cameraImage));
+        if (p == null) return;
+        _dragStart = p;
+        cameraImage.CaptureMouse();
+    }
+
+    private void CameraImage_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (_dragStart == null || e.LeftButton != MouseButtonState.Pressed) return;
+        var p = ToFramePoint(e.GetPosition(cameraImage)) ?? _dragStart.Value;
+        _roi = MakeRect(_dragStart.Value, p);
+    }
+
+    private void CameraImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        cameraImage.ReleaseMouseCapture();
+        _dragStart = null;
+    }
+
+    private const string TargetDeviceName = "openaicam";
 
     private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
     {
@@ -46,6 +108,10 @@ public partial class MainWindow : System.Windows.Window
             MessageBox.Show(statusText.Text);
             return;
         }
+        cap.Set(VideoCaptureProperties.FourCC, VideoWriter.FourCC('M', 'J', 'P', 'G'));
+        cap.Set(VideoCaptureProperties.FrameWidth, 1920);
+        cap.Set(VideoCaptureProperties.FrameHeight, 1080);
+        cap.Set(VideoCaptureProperties.Fps, 30);
 
         _capture = cap;
         statusText.Text = $"'{TargetDeviceName}' 연결됨 (DSHOW index {index})";
@@ -71,6 +137,19 @@ public partial class MainWindow : System.Windows.Window
     private void Timer_Tick(object? sender, EventArgs e)
     {
         if (_capture == null || !_capture.Read(_frame) || _frame.Empty()) return;
+
+        if (_roi != null)
+        {
+            OpenCvSharp.Rect roi = ClampRect(_roi.Value, _frame.Size());
+            Scalar mean = Cv2.Mean(_frame[roi]);
+            byte b = (byte)mean.Val0, g = (byte)mean.Val1, r = (byte)mean.Val2;
+
+            colorSwatch.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(r, g, b));
+            colorText.Text = $"RGB({r},{g},{b})  #{r:X2}{g:X2}{b:X2}";
+
+            Cv2.Rectangle(_frame, roi, Scalar.Lime, 2);
+        }
+
         cameraImage.Source = _frame.ToBitmapSource();
     }
 

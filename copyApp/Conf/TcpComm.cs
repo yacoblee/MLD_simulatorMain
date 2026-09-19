@@ -34,7 +34,6 @@ namespace copyApp.Comm
         public event EventHandler DisconnectedEvent;
 
         public bool IsConnected => _client != null && _client.Connected;
-        public bool IsServerRunning => _serverRunning;
 
         private TcpComm() { }
 

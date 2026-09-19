@@ -111,6 +111,10 @@ namespace sendProject
             {
                 ProcessTemp(msg);
             }
+            else if (msg.Contains("CHECK"))
+            {
+                ProcessCheck(msg);
+            }
 
         }
 
@@ -297,6 +301,28 @@ namespace sendProject
             }
         }
 
+
+        private void ProcessCheck(string msg)
+        {
+            // camProject SerialComm의 헬스체크("CHECK") 응답 — 형식은 기존 TEMP/DRS와 동일한 STX+payload+CR LF
+            string data = $"{_addr:00}CHECK,OK";
+
+            byte[] body = Encoding.ASCII.GetBytes(data);
+            byte[] by = new byte[data.Length + 3];
+            by[0] = 0x02; //STX
+
+            Array.Copy(body, 0, by, 1, data.Length);
+
+            by[by.Length - 2] = 0x0D;
+            by[by.Length - 1] = 0x0A;
+            string chk = Encoding.UTF8.GetString(by);
+            _serial.Write(by, 0, by.Length);
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => { txtBox.Text += $"send : {chk}\n"; }));
+            }
+        }
 
         private void ProcessTcp(string tcpMsg)
         {

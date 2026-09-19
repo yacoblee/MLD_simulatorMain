@@ -19,7 +19,16 @@ namespace camProject
 
             cmbPort.ItemsSource = SerialPort.GetPortNames();
             if (cmbPort.Items.Count > 0) cmbPort.SelectedIndex = 0;
+            cmbPort.DropDownOpened += CmbPort_DropDownOpened;
 
+        }
+
+        private void CmbPort_DropDownOpened(object? sender, EventArgs e)
+        {
+            string? current = cmbPort.SelectedItem as string;
+            cmbPort.ItemsSource = SerialPort.GetPortNames();
+            if (current != null && cmbPort.Items.Contains(current)) cmbPort.SelectedItem = current;
+            else if (cmbPort.Items.Count > 0) cmbPort.SelectedIndex = 0;
         }
 
         private void CommMode_Changed(object sender, RoutedEventArgs e)
@@ -43,8 +52,7 @@ namespace camProject
 
         private void TcpSendBtn_Click(object sender, RoutedEventArgs e)
         {
-            // copyApp 대응: MainView.tcpSend_Click → TcpModel.StartT1Process(barcode, recipe, eqpId, side)
-            ViewModel.TcpSend(barTxt.Text, registBox.Text, "EQUIP1", "Front");
+            ViewModel.TcpSend(barTxt.Text);
         }
 
         private void SvSaveBtn_Click(object sender, RoutedEventArgs e)
