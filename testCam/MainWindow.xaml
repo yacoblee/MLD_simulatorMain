@@ -5,50 +5,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:testCam"
         mc:Ignorable="d"
-        Title="testCam" Height="540" Width="1000" 
+        Title="testCam" Height="540" Width="1000"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}">
 
-    <!-- 💡 수정 1: 음수 마진(-490, -272)을 제거하고 표준 여백(12)으로 변경 -->
-    <Grid Background="GhostWhite" Margin="12">
+    <Grid Margin="12" Background="{StaticResource BgBrush}">
         <Grid.ColumnDefinitions>
-            <!-- 좌측: 설정 패널 (고정폭 280px) -->
+            <!-- 좌측: 기능 탭 (고정폭 280px) -->
             <ColumnDefinition Width="280"/>
             <!-- 우측: 카메라 영상 영역 (남은 가로 공간 전부 차지) -->
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- ================= 좌측: 설정 및 ROI 색상 확인 ================= -->
-        <Border Grid.Column="0" Background="White" CornerRadius="6" Padding="14" Margin="0,0,12,0"
-                BorderBrush="#D0D0D0" BorderThickness="1">
-            <StackPanel>
-                <TextBlock Text="인식 영역(ROI) 설정" FontWeight="Bold" FontSize="14" Margin="0,0,0,8"/>
-                <TextBlock Text="우측 영상 위를 마우스로 드래그하여 인식할 ROI 영역을 지정하세요." 
-                           TextWrapping="Wrap" Foreground="#555555" FontSize="12" Margin="0,0,0,16"/>
+        <!-- ================= 좌측: 기능별 탭 ================= -->
+        <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,12,0">
+            <TabControl>
 
-                <TextBlock Text="추출된 평균 색상" FontWeight="Bold" FontSize="12" Margin="0,0,0,6"/>
+                <!-- 통신 탭: TCP 서버 -->
+                <TabItem Header="통신">
+                    <StackPanel Margin="16">
+                        <TextBlock Text="TCP 서버" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="비전 판독 요청을 수신합니다" Style="{StaticResource CardSubtitle}" Margin="0,2,0,14"/>
 
-                <Rectangle x:Name="colorSwatch" Width="80" Height="80" 
-                           Stroke="#B0B0B0" StrokeThickness="1" Fill="White" 
-                           HorizontalAlignment="Left" RadiusX="4" RadiusY="4"/>
+                        <TextBlock Text="Listen IP" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="ipTxt" Text="127.0.0.1" Margin="0,4,0,10"/>
 
-                <TextBlock x:Name="colorText" Text="RGB(0, 0, 0)" 
-                           Margin="0,8,0,0" FontFamily="Consolas" FontSize="12" Foreground="#333333"/>
-            </StackPanel>
+                        <TextBlock Text="Port" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="portTxt" Text="9000" Margin="0,4,0,14"/>
+
+                        <Button x:Name="listenBtn" Content="서버 시작" Height="34" Click="ListenBtn_Click"/>
+
+                        <TextBlock x:Name="clientText" Text="클라이언트: 없음" Style="{StaticResource CardSubtitle}" Margin="0,10,0,12"/>
+
+                        <TextBlock Text="통신 로그" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="commLog" IsReadOnly="True" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" Height="120" Margin="0,4,0,0"
+                                 FontFamily="Consolas" FontSize="11"/>
+                    </StackPanel>
+                </TabItem>
+
+                <!-- ROI 탭: 인식 영역 / 평균 색상 -->
+                <TabItem Header="ROI">
+                    <StackPanel Margin="16">
+                        <TextBlock Text="인식 영역 (ROI)" Style="{StaticResource CardTitle}"/>
+                        <TextBlock Text="우측 영상 위를 마우스로 드래그하여 인식할 영역을 지정하세요."
+                                   Style="{StaticResource CardSubtitle}" TextWrapping="Wrap" Margin="0,2,0,16"/>
+
+                        <TextBlock Text="추출된 평균 색상" Style="{StaticResource FieldLabel}"/>
+                        <Rectangle x:Name="colorSwatch" Width="88" Height="88" Margin="0,6,0,0"
+                                   Fill="{StaticResource BgBrush}"
+                                   Stroke="{StaticResource BorderBrush}" StrokeThickness="1"
+                                   RadiusX="10" RadiusY="10" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="colorText" Text="RGB(0, 0, 0)" Margin="0,10,0,0"
+                                   FontFamily="Consolas" FontSize="12"/>
+                    </StackPanel>
+                </TabItem>
+
+            </TabControl>
         </Border>
 
         <!-- ================= 우측: 카메라 뷰어 영역 ================= -->
-        <!-- 💡 수정 2: ClipToBounds="True"로 영상이 테두리 밖으로 삐져나가는 현상 방지 -->
-        <Border Grid.Column="1" Background="#1E1E1E" CornerRadius="6" ClipToBounds="True">
+        <!-- Padding 4: 둥근 모서리 밖으로 영상 모서리가 삐져나오지 않게 하는 최소 안쪽 여백 -->
+        <Border Grid.Column="1" Background="{StaticResource CameraBgBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                CornerRadius="10" Padding="4">
             <Grid>
-                <!-- Stretch="Uniform"이 적용되어 창 크기에 맞춰 16:9 비율을 유지하며 100% 온전하게 표시됩니다 -->
-                <Image x:Name="cameraImage" Stretch="Uniform" 
+                <Image x:Name="cameraImage" Stretch="Uniform"
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                <!-- 영상 좌상단 상태 텍스트 오버레이 -->
-                <TextBlock x:Name="statusText" Foreground="Yellow" Margin="10" 
-                           VerticalAlignment="Top" HorizontalAlignment="Left"
-                           FontFamily="Consolas" FontSize="12"/>
+                <!-- 좌상단: 카메라 상태 -->
+                <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8"
+                        Padding="8,4" CornerRadius="6" Background="#B3000000">
+                    <TextBlock x:Name="statusText" Text="대기 중" Foreground="#F5D76E"
+                               FontFamily="Consolas" FontSize="12"/>
+                </Border>
+
+                <!-- 우상단: TCP 서버 상태 (탭과 무관하게 항상 표시) -->
+                <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="8"
+                        Padding="8,4" CornerRadius="6" Background="#B3000000">
+                    <TextBlock x:Name="tcpStateText" Text="TCP: 중지" Foreground="{StaticResource SubTextBrush}"
+                               FontFamily="Consolas" FontSize="12"/>
+                </Border>
             </Grid>
         </Border>
 

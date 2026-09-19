@@ -51,6 +51,8 @@ namespace copyApp
 
         public MainView(MainModel model, TcpModel tcpModel)
         {
+            Theme.Apply(this);
+
             _model = model;
             _tcpModel = tcpModel;
 
@@ -114,7 +116,6 @@ namespace copyApp
             }
         }
 
-        // 시리얼 수신 현재값 4개를 PV행에 세팅 (백그라운드 스레드 → 마샬링)
         public void SetPvRow(int[] temps)
         {
             if (dataGridView1.InvokeRequired)
@@ -212,7 +213,7 @@ namespace copyApp
 
         private async Task<bool> PreviousConn () 
         {
-            int[] temps = await _model.WaitFirstTempAsync(3000);   // Connect() 재호출 삭제 — 포트는 이미 열려 있음
+            int[] temps = await _model.WaitFirstTempAsync(3000);  
             if (temps == null) { MessageBox.Show("온도값 수신 실패(타임아웃)"); return false; }
             return true;
         }

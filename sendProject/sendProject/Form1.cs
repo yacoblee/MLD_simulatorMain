@@ -29,6 +29,9 @@ namespace sendProject
         {
             InitializeComponent();
             _man = man; // cfg 생성자 주입
+            BuildSimulatorPanel();      // 아두이노 시뮬레이터 패널 (Form1.Simulator.cs)
+            Theme.Apply(this);
+            ResetSimulatorUi();         // Theme가 칠한 LED 색을 되돌림
 
 
             _addr = 0x01;
@@ -64,32 +67,42 @@ namespace sendProject
             if (IsDisposed) { return; }
             
         }
+        private string _rx = "";
+
+        // 프레임이 쪼개져 오거나 짧아도 깨지지 않도록 줄(\n) 단위로 모아서 처리한다
         private void _serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-
-            // 상대방 COM PORT에서 Send한 메세지를 받는 이벤트
-            // 이벤트란?
-            // 특정한 조건에서 "비동기"로 동작하는 메소드
-
-            // 문자열은 간단하게 ReadExisting()쓰면 편함!
-            // 바이트는 BytesToRead로 갯수 파악후 Read로 받기!
-            int length = _serial.BytesToRead;
-            if (length < 0) { return; }
-
-            byte[] by = new byte[length];
-            byte[] by2 = new byte[length];
-
-            _serial.Read(by, 0, length);
-            byte[] data= new byte[length - 3];
-            
-            Array.Copy(by, 1, data, 0, data.Length);
-            String msg = Encoding.UTF8.GetString(data);
-
-
-            if (InvokeRequired)
+            try
             {
-                Invoke(new Action(() => { txtBox.Text += $"{Encoding.UTF8.GetString(data)}\n"; }));
+                _rx += _serial.ReadExisting();
+
+                int idx;
+                while ((idx = _rx.IndexOf('\n')) >= 0)
+                {
+                    string line = _rx.Substring(0, idx);
+                    _rx = _rx.Substring(idx + 1);
+
+                    string msg = line.Replace("\u0002", "").Replace("\r", "").Trim();
+                    if (msg.Length == 0) continue;
+
+                    HandleSerialMessage(msg);
+                }
             }
+            catch (Exception ex)
+            {
+                LogUi("수신 오류: " + ex.Message);
+            }
+        }
+
+        private void HandleSerialMessage(string msg)
+        {
+            LogUi("수신: " + msg);
+
+            // 바코드에 TEMP, CHECK 같은 글자가 들어 있어도 SWITCH 명령이 먼저 분기되도록 맨 앞에서 처리
+            if (msg.Contains(":SWITCH")) { ProcessSwitch(msg); return; }
+
+            // 장애 주입: 하트비트(CHECK)와 온도(TEMP)에 응답하지 않는다
+            if (_mute && (msg.Contains("CHECK") || msg.Contains("TEMP"))) return;
 
             if (msg.Contains("DRS"))
             {
@@ -115,7 +128,6 @@ namespace sendProject
             {
                 ProcessCheck(msg);
             }
-
         }
 
         private void ProcessDWR(String msg)
@@ -304,7 +316,6 @@ namespace sendProject
 
         private void ProcessCheck(string msg)
         {
-            // camProject SerialComm의 헬스체크("CHECK") 응답 — 형식은 기존 TEMP/DRS와 동일한 STX+payload+CR LF
             string data = $"{_addr:00}CHECK,OK";
 
             byte[] body = Encoding.ASCII.GetBytes(data);
@@ -498,7 +509,7 @@ namespace sendProject
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (txtBox.TextLength > 1000)
+            if (txtBox.TextLength > 20000)
             {
                 txtBox.Clear();
             }
@@ -549,6 +560,8 @@ namespace sendProject
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             TcpConfig.Instance.DataReceived -= OnTcpDataReceived;   // 누수/예외 방지
+            _sweepTimer.Stop();
+            _sweepTimer.Dispose();
             base.OnFormClosed(e);
         }
 

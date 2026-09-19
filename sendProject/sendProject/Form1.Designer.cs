@@ -43,7 +43,7 @@
             // portList
             // 
             this.portList.FormattingEnabled = true;
-            this.portList.Location = new System.Drawing.Point(86, 794);
+            this.portList.Location = new System.Drawing.Point(64, 386);
             this.portList.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.portList.Name = "portList";
             this.portList.Size = new System.Drawing.Size(164, 29);
@@ -53,10 +53,10 @@
             // 
             // conBtn
             // 
-            this.conBtn.Location = new System.Drawing.Point(277, 761);
+            this.conBtn.Location = new System.Drawing.Point(93, 430);
             this.conBtn.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.conBtn.Name = "conBtn";
-            this.conBtn.Size = new System.Drawing.Size(167, 70);
+            this.conBtn.Size = new System.Drawing.Size(135, 58);
             this.conBtn.TabIndex = 1;
             this.conBtn.Text = "Connect";
             this.conBtn.UseVisualStyleBackColor = true;
@@ -64,19 +64,19 @@
             // 
             // txtBox
             // 
-            this.txtBox.Location = new System.Drawing.Point(457, 189);
+            this.txtBox.Location = new System.Drawing.Point(400, 125);
             this.txtBox.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.txtBox.Multiline = true;
             this.txtBox.Name = "txtBox";
             this.txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtBox.Size = new System.Drawing.Size(512, 426);
+            this.txtBox.Size = new System.Drawing.Size(575, 491);
             this.txtBox.TabIndex = 2;
             this.txtBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label5
             // 
             this.label5.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.label5.Location = new System.Drawing.Point(86, 761);
+            this.label5.Location = new System.Drawing.Point(64, 353);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(165, 30);
             this.label5.TabIndex = 4;
@@ -85,7 +85,7 @@
             // 
             // ipTxt
             // 
-            this.ipTxt.Location = new System.Drawing.Point(64, 264);
+            this.ipTxt.Location = new System.Drawing.Point(49, 156);
             this.ipTxt.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.ipTxt.Name = "ipTxt";
             this.ipTxt.Size = new System.Drawing.Size(196, 32);
@@ -93,7 +93,7 @@
             // 
             // portTxt
             // 
-            this.portTxt.Location = new System.Drawing.Point(64, 340);
+            this.portTxt.Location = new System.Drawing.Point(49, 232);
             this.portTxt.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.portTxt.Name = "portTxt";
             this.portTxt.Size = new System.Drawing.Size(196, 32);
@@ -101,10 +101,10 @@
             // 
             // tcpBtn
             // 
-            this.tcpBtn.Location = new System.Drawing.Point(178, 410);
+            this.tcpBtn.Location = new System.Drawing.Point(42, 283);
             this.tcpBtn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tcpBtn.Name = "tcpBtn";
-            this.tcpBtn.Size = new System.Drawing.Size(97, 49);
+            this.tcpBtn.Size = new System.Drawing.Size(109, 49);
             this.tcpBtn.TabIndex = 6;
             this.tcpBtn.Text = "연결";
             this.tcpBtn.UseVisualStyleBackColor = true;
@@ -112,7 +112,7 @@
             // 
             // sendBtn
             // 
-            this.sendBtn.Location = new System.Drawing.Point(64, 410);
+            this.sendBtn.Location = new System.Drawing.Point(157, 283);
             this.sendBtn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.sendBtn.Name = "sendBtn";
             this.sendBtn.Size = new System.Drawing.Size(97, 49);
@@ -124,7 +124,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(61, 240);
+            this.label1.Location = new System.Drawing.Point(46, 132);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(25, 21);
             this.label1.TabIndex = 7;
@@ -133,7 +133,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(61, 315);
+            this.label2.Location = new System.Drawing.Point(46, 207);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(61, 21);
             this.label2.TabIndex = 7;
@@ -143,7 +143,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1009, 910);
+            this.ClientSize = new System.Drawing.Size(1009, 844);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.sendBtn);

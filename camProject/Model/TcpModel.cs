@@ -10,6 +10,9 @@ namespace camProject.Model
         public event EventHandler<string> LogOccurred;
         public event EventHandler<string> ProcessCompleted;
 
+        // 2026-10-28 추가(문제4): MES 단계(T1~T3)가 NG 또는 타임아웃으로 실패했음을 상위에 알림. 인자는 실패 사유
+        public event EventHandler<string>? ProcessFailed;
+
         public event EventHandler Connected; 
         public event EventHandler Disconnected;
 
@@ -56,8 +59,15 @@ namespace camProject.Model
             _retryTimer = new System.Timers.Timer(TimeoutSecond) { AutoReset = false };
             _retryTimer.Elapsed += (s, e) =>
             {
-                OnLogOccurred($"{_currentState} 단계 응답 타임아웃 — 프로세스를 중단합니다.");
+                // [2026-10-28 원본]
+                // OnLogOccurred($"{_currentState} 단계 응답 타임아웃 — 프로세스를 중단합니다.");
+                // _currentState = ProcessState.Idle;
+
+                // 2026-10-28 수정(문제4): 상태를 Idle로 되돌리기 전에 어느 단계였는지 보관하고, 실패를 상위(ViewModel)에 알림
+                string timedOutState = _currentState.ToString();
+                OnLogOccurred($"{timedOutState} 단계 응답 타임아웃 — 프로세스를 중단합니다.");
                 _currentState = ProcessState.Idle;
+                ProcessFailed?.Invoke(this, $"{timedOutState} 타임아웃");
             };
             _retryTimer.Start();
         }
@@ -76,8 +86,16 @@ namespace camProject.Model
 
             if (result == "NG")
             {
+                // [2026-10-28 원본]
+                // StopTimeoutWatch();
+                // _currentState = ProcessState.Idle;
+                // return;
+
+                // 2026-10-28 수정(문제4): NG 사유를 로그로 남기고 실패를 상위에 알림 (기존에는 아무 표시 없이 Idle로만 돌아갔음)
                 StopTimeoutWatch();
                 _currentState = ProcessState.Idle;
+                OnLogOccurred($"{cmdType} 단계 NG 응답 — 프로세스를 중단합니다.");
+                ProcessFailed?.Invoke(this, $"{cmdType} NG");
                 return;
             }
 

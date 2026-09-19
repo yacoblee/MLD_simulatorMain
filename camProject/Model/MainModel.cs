@@ -13,6 +13,10 @@ namespace camProject.Model
         public event EventHandler? Connected;
         public event EventHandler? Disconnected;
 
+        // 2026-10-28 추가(문제2): 장비의 동작 완료 보고(01DONE,OK,<단계>) 수신 이벤트.
+        // 1차 동작이 끝난 뒤에 2차 동작을 보내려면 장비가 언제 끝났는지 알아야 함
+        public event EventHandler<int>? StageDone;
+
         private System.Timers.Timer? _tempTimer;
         public bool IsOpen => SerialComm.Instance.IsOpen;
         public static string RecipeDir => Path.Combine("C:\\Users\\ss\\Documents\\DevProject\\MLD_simulatorMain\\camProject\\bin\\TempSetting", "Settings");
@@ -29,6 +33,17 @@ namespace camProject.Model
         public void OnData(object sender, string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
+
+            // 2026-10-28 추가(문제2): "01DONE,OK,1" 형식의 완료 보고 처리.
+            // 토큰이 3개라서 아래 tokens.Length < 6 검사에 걸려 버려지므로 반드시 그보다 먼저 처리해야 함
+            string[] doneTokens = text.Split(',');
+            int doneStage;
+            if (doneTokens.Length >= 3 && doneTokens[0].Trim().EndsWith("DONE") && doneTokens[1].Trim() == "OK"
+                && int.TryParse(doneTokens[2].Trim(), out doneStage))
+            {
+                StageDone?.Invoke(this, doneStage);
+                return;
+            }
 
             string[] tokens = text.Split(',');
             if (tokens.Length < 6) return;
@@ -60,7 +75,18 @@ namespace camProject.Model
             return result;
         }
 
+        public async Task<int[]?> WaitFirstTempAsync(int timeoutMs)
+        {
+            var tcs = new TaskCompletionSource<int[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            EventHandler<int[]>? handler = null;
+            handler = (s, t) => { TempReceived -= handler; tcs.TrySetResult(t); };
+            TempReceived += handler;
 
+            SerialComm.Instance.CheckTemp();
+            var done = await Task.WhenAny(tcs.Task, Task.Delay(timeoutMs));
+            TempReceived -= handler;
+            return done == tcs.Task ? tcs.Task.Result : null;
+        }
 
         public int[] GetSelectedValue(string fileName) {
             if (string.IsNullOrEmpty(fileName)) return Array.Empty<int>();

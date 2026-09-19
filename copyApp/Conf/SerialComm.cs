@@ -5,10 +5,7 @@ using System.Threading;
 
 namespace copyApp.Conf
 {
-    /// <summary>
-    /// 시리얼 통신 전담 모듈. 포트 소유/송수신/프레이밍을 담당하고,
-    /// 수신 결과를 이벤트로 broadcast 한다. (UI/Model을 모름)
-    /// </summary>
+
     public class SerialComm : IDisposable
     {
         public static SerialComm Instance { get; } = new SerialComm(); 

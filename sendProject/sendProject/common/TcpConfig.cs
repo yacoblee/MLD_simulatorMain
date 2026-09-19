@@ -104,27 +104,27 @@ namespace sendProject.common
         private void ReceiveLoop()
         {
             byte[] buffer = new byte[2048];
-            var sb = new StringBuilder();          // 프레임 조립용 (STX~ETX 사이 누적)
+            var sb = new StringBuilder();      
 
             try
             {
                 while (_serverRunning && _stream != null)
                 {
                     int bytesRead = _stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead <= 0) break;      // 상대가 연결 종료
+                    if (bytesRead <= 0) break;  
 
                     for (int i = 0; i < bytesRead; i++)
                     {
                         byte b = buffer[i];
 
-                        if (b == 0x02)              // STX → 새 프레임 시작
+                        if (b == 0x02)             
                         {
                             sb.Clear();
                         }
-                        else if (b == 0x03)         // ETX → 프레임 완성
+                        else if (b == 0x03)         
                         {
                             string payload = sb.ToString();
-                            DataReceived?.Invoke(this, payload);   // 완성된 데이터 전달
+                            DataReceived?.Invoke(this, payload);    
                             LogPrint($"수신: {payload}");
                             sb.Clear();
                         }
@@ -141,7 +141,7 @@ namespace sendProject.common
             }
             finally
             {
-                DisconnectedEvent?.Invoke(this, EventArgs.Empty);  // 끊김 알림
+                DisconnectedEvent?.Invoke(this, EventArgs.Empty); 
             }
         }
 
