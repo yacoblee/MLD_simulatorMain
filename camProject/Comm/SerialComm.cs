@@ -43,6 +43,10 @@ namespace camProject.Comm
 
 
         private SerialComm() {
+            // 2026-10-28 적용: 기본값은 무한 대기(-1)라서 상대가 읽지 않으면 Write가 영원히 막히고 Close()도 반환되지 않음
+            _serial.WriteTimeout = 1000;
+            _serial.ReadTimeout = 1000;
+            //E
             _serial.DataReceived += OnSerialDataReceived;
         }
 
@@ -55,8 +59,8 @@ namespace camProject.Comm
                 byte[] data = new byte[bylen];
                 _serial.Read(data, 0, bylen);
 
-                _rxBuffer = Encoding.UTF8.GetString(data);
-                
+                //_rxBuffer = Encoding.UTF8.GetString(data);
+                _rxBuffer += Encoding.ASCII.GetString(data);
                 _rxSignal.Set();
                 while (_rxBuffer.Contains("\n"))
                 {
@@ -67,7 +71,7 @@ namespace camProject.Comm
                     string clean = frame.Replace("\u0002", "").Replace("\r", "").Trim();
                     if (string.IsNullOrWhiteSpace(clean)) continue;
 
-                    _healthTcs?.TrySetResult(clean);
+                    if (clean.Contains("CHECK")) _healthTcs?.TrySetResult(clean);
                     DataReceived?.Invoke(this, clean);
                 }
             } catch (Exception ex) { 
@@ -136,8 +140,9 @@ namespace camProject.Comm
                 pingPacket[pingPacket.Length - 2] = 0x0D; // CR
                 pingPacket[pingPacket.Length - 1] = 0x0A; // LF 
 
-                await _serial.BaseStream.WriteAsync(pingPacket, 0, pingPacket.Length);
-                await _serial.BaseStream.FlushAsync();
+                // 2026-10-28 적용: BaseStream.WriteAsync는 WriteTimeout/CancellationToken이 적용되지 않아 상대가 읽지 않으면 막힌 채 Close()까지 못 돌아옴.
+                // WriteTimeout(1초)이 적용되는 동기 Write로 교체. 이 메서드는 하트비트 백그라운드 스레드에서 호출되므로 UI는 막히지 않음.
+                _serial.Write(pingPacket, 0, pingPacket.Length);
 
                 var completed = await Task.WhenAny(tcs.Task, Task.Delay(2000));
                 _healthTcs = null;
@@ -148,7 +153,8 @@ namespace camProject.Comm
             }
             catch (Exception ex)
             {
-                OnLogOccurred($"장비 체크 데이터 전송 실패{ex.ToString}");
+                // 2026-10-28 수정: ex.ToString 에 괄호가 없어 예외 내용 대신 메서드 이름이 출력되던 것을 ex.Message 로 변경
+                OnLogOccurred($"장비 체크 데이터 전송 실패: {ex.Message}");
                 return false;
             }
         }

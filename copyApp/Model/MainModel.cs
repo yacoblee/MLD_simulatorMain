@@ -31,9 +31,6 @@ namespace copyApp.Model
         private readonly ManualResetEventSlim _rxSignal = new ManualResetEventSlim(false);
         public static string RecipeDir => Path.Combine(Application.StartupPath, "Settings");
 
-
-
-        // 프레이밍: STX + payload + CR LF (sendProject 규약)
         private const byte STX = 0x02;
         private string _rxBuffer = "";
         public bool IsConnected { get; private set; } = false;
