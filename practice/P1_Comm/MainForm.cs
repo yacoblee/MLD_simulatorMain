@@ -71,8 +71,11 @@ namespace P1_Comm
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(101, 46);
             this.button2.TabIndex = 3;
-            this.button2.Text = "button2";
+            // [2026-11-11 수정] 워치독 테스트용 일시정지/재개 버튼
+            //this.button2.Text = "button2";
+            this.button2.Text = "일시정지";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // MainForm
             // 
@@ -90,25 +93,66 @@ namespace P1_Comm
         private void LogUi(string text)
         {
             if (IsDisposed || !IsHandleCreated) return;
-            BeginInvoke(new Action(() =>
+            // [2026-11-11 수정] IsHandleCreated 확인과 BeginInvoke 사이에 폼이 닫히면 예외가 나므로 방어한다.
+            try
             {
-                if (!IsDisposed) textBox1.AppendText($"[{DateTime.Now:HH:mm:ss}] {text}\r\n");
-            }));
+                BeginInvoke(new Action(() =>
+                {
+                    if (!IsDisposed) textBox1.AppendText($"[{DateTime.Now:HH:mm:ss}] {text}\r\n");
+                }));
+            }
+            catch (InvalidOperationException) { }   // 핸들 없음 (ObjectDisposedException 도 이 예외의 하위 형식이라 함께 잡힌다)
+            //BeginInvoke(new Action(() =>
+            //{
+            //    if (!IsDisposed) textBox1.AppendText($"[{DateTime.Now:HH:mm:ss}] {text}\r\n");
+            //}));
         }
 
         private void button1_Click(object sender, System.EventArgs e)
         {
-            LogUi(textBox1.Text);
-            if (_act == true)
+            // [2026-11-11 수정] 원본의 문제: (1) LogUi(textBox1.Text) 가 로그 내용을 다시 붙여 중복됨
+            //   (2) _act 를 뒤집지 않아 항상 Start 분기만 실행 -> 정지 불가 (3) 버튼 문구가 반대
+            //LogUi(textBox1.Text);
+            //if (_act == true)
+            //{
+            //    button1.Text = "실행";
+            //    _counterWorker.Start();
+            //
+            //} else {
+            //    button1.Text = "정지";
+            //    _counterWorker.Stop();
+            //}
+
+            if (_act)
             {
-                button1.Text = "실행";
                 _counterWorker.Start();
-
-            } else {
                 button1.Text = "정지";
-                _counterWorker.Stop();
+                button2.Text = "일시정지";
             }
+            else
+            {
+                _counterWorker.Stop();
+                button1.Text = "시작";
+                button2.Text = "일시정지";
+            }
+            _act = !_act;
+        }
 
+        // [2026-11-11 추가] 일시정지 -> 5초 뒤 워치독 경보 확인, 다시 누르면 재개
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (!_counterWorker.IsRunning) return;
+
+            if (_counterWorker.IsPaused)
+            {
+                _counterWorker.Resume();
+                button2.Text = "일시정지";
+            }
+            else
+            {
+                _counterWorker.Pause();
+                button2.Text = "재개";
+            }
         }
 
         private void Write_LogOccured(object sender, string message)
@@ -118,7 +162,9 @@ namespace P1_Comm
 
         private void Worker_WatchdogTimeout(object sender, EventArgs s)
         {
-            LogUi($"[{DateTime.Now:HH:mm:ss}] [ALERT] 장비 응답 지연 감지!\r\n");
+            // [2026-11-11 수정] LogUi 가 이미 시각과 \r\n 을 붙이므로 중복 제거
+            //LogUi($"[{DateTime.Now:HH:mm:ss}] [ALERT] 장비 응답 지연 감지!\r\n");
+            LogUi("[ALERT] 장비 응답 지연 감지!");
 
         }
 
